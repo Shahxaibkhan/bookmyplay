@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { formatDate, formatTime, formatPrice } from '@/lib/utils';
 import Toast from '@/components/Toast';
@@ -10,6 +10,9 @@ type BookingStatus = 'pending' | 'confirmed' | 'cancelled';
 
 type Booking = {
   _id: string;
+  arenaId: string;
+  branchId: string;
+  courtId: string;
   referenceCode?: string;
   customerName: string;
   customerPhone: string;
@@ -27,6 +30,12 @@ type Booking = {
 type BookingResponse = { bookings?: Booking[] };
 type ToastState = { message: string; type: 'success' | 'error' } | null;
 
+type EntityMaps = {
+  arenas: Record<string, string>;
+  branches: Record<string, string>;
+  courts: Record<string, string>;
+};
+
 const getErrorMessage = (err: unknown) =>
   err instanceof Error ? err.message : 'Something went wrong';
 
@@ -36,6 +45,59 @@ export default function BookingsPage() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | BookingStatus>('all');
   const [toast, setToast] = useState<ToastState>(null);
+  const [entityNames, setEntityNames] = useState<EntityMaps>({
+    arenas: {},
+    branches: {},
+    courts: {},
+  });
+
+  const resolveEntityName = (
+    collection: Record<string, string>,
+    id?: string
+  ) => {
+    if (!id) return 'N/A';
+    return collection[id] ?? 'Loading...';
+  };
+
+  const fetchEntityLabels = useCallback(async (
+    ids: string[],
+    type: 'arena' | 'branch' | 'court'
+  ) => {
+    const labels: Record<string, string> = {};
+    if (ids.length === 0) return labels;
+
+    await Promise.all(
+      ids.map(async (id) => {
+        try {
+          const basePath =
+            type === 'arena'
+              ? '/api/arenas/'
+              : type === 'branch'
+              ? '/api/branches/'
+              : '/api/courts/';
+
+          const res = await fetch(`${basePath}${id}`);
+          if (!res.ok) return;
+
+          const data = await res.json();
+          const entity =
+            type === 'arena'
+              ? data?.arena
+              : type === 'branch'
+              ? data?.branch
+              : data?.court;
+
+          if (entity?.name) {
+            labels[id] = entity.name;
+          }
+        } catch (error) {
+          console.error(`Failed to load ${type} ${id}`, error);
+        }
+      })
+    );
+
+    return labels;
+  }, []);
 
   useEffect(() => {
     const fetchBookings = async () => {
@@ -58,6 +120,58 @@ export default function BookingsPage() {
       fetchBookings();
     }
   }, [session]);
+
+  useEffect(() => {
+    if (!bookings.length) {
+      if (
+        Object.keys(entityNames.arenas).length ||
+        Object.keys(entityNames.branches).length ||
+        Object.keys(entityNames.courts).length
+      ) {
+        setEntityNames({ arenas: {}, branches: {}, courts: {} });
+      }
+      return;
+    }
+
+    const uniqueIds = (key: 'arenaId' | 'branchId' | 'courtId') =>
+      Array.from(
+        new Set(
+          bookings
+            .map((booking) => booking[key])
+            .filter((value): value is string => Boolean(value))
+        )
+      );
+
+    const missingArenas = uniqueIds('arenaId').filter(
+      (id) => !entityNames.arenas[id]
+    );
+    const missingBranches = uniqueIds('branchId').filter(
+      (id) => !entityNames.branches[id]
+    );
+    const missingCourts = uniqueIds('courtId').filter(
+      (id) => !entityNames.courts[id]
+    );
+
+    if (missingArenas.length === 0 && missingBranches.length === 0 && missingCourts.length === 0) {
+      return;
+    }
+
+    const loadEntityNames = async () => {
+      const [arenaLabels, branchLabels, courtLabels] = await Promise.all([
+        fetchEntityLabels(missingArenas, 'arena'),
+        fetchEntityLabels(missingBranches, 'branch'),
+        fetchEntityLabels(missingCourts, 'court'),
+      ]);
+
+      setEntityNames((prev) => ({
+        arenas: { ...prev.arenas, ...arenaLabels },
+        branches: { ...prev.branches, ...branchLabels },
+        courts: { ...prev.courts, ...courtLabels },
+      }));
+    };
+
+    loadEntityNames();
+  }, [bookings, entityNames, fetchEntityLabels]);
 
   const handleStatusChange = async (bookingId: string, newStatus: BookingStatus) => {
     try {
@@ -240,10 +354,25 @@ export default function BookingsPage() {
                     <p className="text-[0.65rem] uppercase tracking-wide text-slate-400">Duration</p>
                     <p className="font-medium text-slate-900">{booking.duration} min</p>
                   </div>
+                </div>
+
+                <div className="mt-3 grid gap-4 text-xs sm:grid-cols-3">
                   <div>
-                    <p className="text-[0.65rem] uppercase tracking-wide text-slate-400">Players</p>
+                    <p className="text-[0.65rem] uppercase tracking-wide text-slate-400">Arena</p>
                     <p className="font-medium text-slate-900">
-                      {booking.numberOfPlayers ?? '—'}
+                      {resolveEntityName(entityNames.arenas, booking.arenaId)}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-[0.65rem] uppercase tracking-wide text-slate-400">Branch</p>
+                    <p className="font-medium text-slate-900">
+                      {resolveEntityName(entityNames.branches, booking.branchId)}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-[0.65rem] uppercase tracking-wide text-slate-400">Court</p>
+                    <p className="font-medium text-slate-900">
+                      {resolveEntityName(entityNames.courts, booking.courtId)}
                     </p>
                   </div>
                 </div>

@@ -45,7 +45,7 @@ A complete SaaS platform for sports venue owners to manage bookings through What
 ### Step 1: Clone & Install
 
 ```bash
-cd d:\BookMyCourt
+cd d:\BookMyPlay
 npm install
 ```
 

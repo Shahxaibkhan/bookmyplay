@@ -51,7 +51,7 @@ describe('Admin dashboard data and public booking APIs', () => {
 
     const pendingOwner = await Owner.create({
       name: 'Admin QA Owner',
-      email: `admin-qa-${suffix}@bookmycourt.test`,
+      email: `admin-qa-${suffix}@bookmyplay.test`,
       password: 'hashed-password',
       phone: '+10000000000',
       role: 'owner',
@@ -80,7 +80,7 @@ describe('Admin dashboard data and public booking APIs', () => {
 
     const publicOwner = await Owner.create({
       name: 'Public QA Owner',
-      email: `public-qa-${suffix}@bookmycourt.test`,
+      email: `public-qa-${suffix}@bookmyplay.test`,
       password: 'hashed-password',
       phone: '+12223334444',
       role: 'owner',
@@ -182,7 +182,7 @@ describe('Admin dashboard data and public booking APIs', () => {
     setSessionUser({
       id: 'admin-user',
       name: 'QA Admin',
-      email: 'admin@bookmycourt.test',
+      email: 'admin@bookmyplay.test',
       role: 'admin',
     });
 

@@ -52,7 +52,7 @@ describe('API authorization and validation coverage', () => {
 
     const ownerPrimary = await Owner.create({
       name: 'Coverage Owner A',
-      email: `coverage-owner-a-${suffix}@bookmycourt.test`,
+      email: `coverage-owner-a-${suffix}@bookmyplay.test`,
       password: 'hashed',
       phone: '+11110000000',
       role: 'owner',
@@ -61,7 +61,7 @@ describe('API authorization and validation coverage', () => {
 
     const ownerSecondary = await Owner.create({
       name: 'Coverage Owner B',
-      email: `coverage-owner-b-${suffix}@bookmycourt.test`,
+      email: `coverage-owner-b-${suffix}@bookmyplay.test`,
       password: 'hashed',
       phone: '+22220000000',
       role: 'owner',
@@ -237,7 +237,7 @@ describe('API authorization and validation coverage', () => {
     setSessionUser({
       id: state.ownerA,
       name: 'Owner A',
-      email: 'oa@bookmycourt.test',
+      email: 'oa@bookmyplay.test',
       role: 'owner',
     });
     const ownerResponse = await getArenas();
@@ -249,7 +249,7 @@ describe('API authorization and validation coverage', () => {
     setSessionUser({
       id: 'admin-user',
       name: 'Admin',
-      email: 'admin@bookmycourt.test',
+      email: 'admin@bookmyplay.test',
       role: 'admin',
     });
     const adminResponse = await getArenas();
@@ -264,7 +264,7 @@ describe('API authorization and validation coverage', () => {
     setSessionUser({
       id: state.ownerA,
       name: 'Owner A',
-      email: 'oa@bookmycourt.test',
+      email: 'oa@bookmyplay.test',
       role: 'owner',
     });
 
@@ -287,7 +287,7 @@ describe('API authorization and validation coverage', () => {
     setSessionUser({
       id: state.ownerB,
       name: 'Owner B',
-      email: 'ob@bookmycourt.test',
+      email: 'ob@bookmyplay.test',
       role: 'owner',
     });
 
@@ -312,7 +312,7 @@ describe('API authorization and validation coverage', () => {
     setSessionUser({
       id: state.ownerA,
       name: 'Owner A',
-      email: 'oa@bookmycourt.test',
+      email: 'oa@bookmyplay.test',
       role: 'owner',
     });
 
@@ -327,7 +327,7 @@ describe('API authorization and validation coverage', () => {
     setSessionUser({
       id: 'admin-user',
       name: 'Admin',
-      email: 'admin@bookmycourt.test',
+      email: 'admin@bookmyplay.test',
       role: 'admin',
     });
 
@@ -347,7 +347,7 @@ describe('API authorization and validation coverage', () => {
     setSessionUser({
       id: state.ownerB,
       name: 'Owner B',
-      email: 'ob@bookmycourt.test',
+      email: 'ob@bookmyplay.test',
       role: 'owner',
     });
 
@@ -362,7 +362,7 @@ describe('API authorization and validation coverage', () => {
     setSessionUser({
       id: 'admin-user',
       name: 'Admin',
-      email: 'admin@bookmycourt.test',
+      email: 'admin@bookmyplay.test',
       role: 'admin',
     });
 
@@ -383,7 +383,7 @@ describe('API authorization and validation coverage', () => {
     setSessionUser({
       id: 'admin-user',
       name: 'Admin',
-      email: 'admin@bookmycourt.test',
+      email: 'admin@bookmyplay.test',
       role: 'admin',
     });
 
@@ -466,7 +466,7 @@ describe('API authorization and validation coverage', () => {
     setSessionUser({
       id: state.ownerA,
       name: 'Owner A',
-      email: 'oa@bookmycourt.test',
+      email: 'oa@bookmyplay.test',
       role: 'owner',
     });
 
@@ -490,7 +490,7 @@ describe('API authorization and validation coverage', () => {
     setSessionUser({
       id: state.ownerA,
       name: 'Owner A',
-      email: 'oa@bookmycourt.test',
+      email: 'oa@bookmyplay.test',
       role: 'owner',
     });
     const forbiddenBranch = await createBranch(

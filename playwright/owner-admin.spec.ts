@@ -21,7 +21,7 @@ async function ensureDbConnection() {
 test.describe('Owner and Admin UI flows', () => {
   test('owner can sign up via API and reach dashboard after login', async ({ page, request }) => {
     const unique = Date.now();
-    const ownerEmail = `pw-owner-${unique}@bookmycourt.test`;
+    const ownerEmail = `pw-owner-${unique}@bookmyplay.test`;
     const ownerPassword = 'PwOwner!123';
 
     const signupResponse = await request.post('/api/owner/signup', {
@@ -55,7 +55,7 @@ test.describe('Owner and Admin UI flows', () => {
 
     const tempOwner = await Owner.create({
       name: 'Admin Flow Owner',
-      email: `pw-admin-owner-${unique}@bookmycourt.test`,
+      email: `pw-admin-owner-${unique}@bookmyplay.test`,
       password: 'hashed',
       phone: '+923004445556',
       role: 'owner',

@@ -403,7 +403,7 @@ Please confirm this booking. Thank you!
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 via-green-50 to-lime-100">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mx-auto mb-4"></div>
-          <p className="text-emerald-700 font-semibold">Loading BookMyCourt experience...</p>
+          <p className="text-emerald-700 font-semibold">Loading BookMyPlay experience...</p>
         </div>
       </div>
     );
@@ -437,7 +437,7 @@ Please confirm this booking. Thank you!
         />
       )}
       
-      <div className="bg-gradient-to-r from-emerald-600 via-green-600 to-lime-500 shadow-lg">
+      <div className="bg-gradient-to-r from-emerald-700 via-emerald-600 to-emerald-700 shadow-lg">
         <div className="max-w-5xl mx-auto px-4 py-6">
           <h1 className="text-3xl font-bold text-white">
             {data.arena.name}
@@ -816,10 +816,12 @@ Please confirm this booking. Thank you!
 
       <div className="bg-white border-t mt-12">
         <div className="max-w-5xl mx-auto px-4 py-6 text-center text-gray-600 text-sm">
-          <p>
-            Powered by{' '}
-            <span className="font-semibold bg-gradient-to-r from-emerald-500 via-emerald-400 to-lime-400 bg-clip-text text-transparent">
-              BookMyCourt
+          <p className="flex items-center justify-center gap-1">
+            Powered by
+            <span className="inline-flex font-semibold tracking-tight text-slate-900">
+              <span className="text-slate-900">Book</span>
+              <span className="text-emerald-500">My</span>
+              <span className="text-slate-900">Play</span>
             </span>
           </p>
         </div>

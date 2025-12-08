@@ -229,7 +229,7 @@ A production-ready SaaS platform for sports venue booking with WhatsApp integrat
 ## 📁 Project Structure
 
 ```
-BookMyCourt/
+BookMyPlay/
 ├── src/
 │   ├── app/
 │   │   ├── admin/

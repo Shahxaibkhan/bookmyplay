@@ -29,7 +29,7 @@ function buildRequest(path: string, payload: unknown) {
 
 describe('Owner lifecycle API flow', () => {
   const uniqueSuffix = Date.now();
-  const ownerEmail = `qa-owner-${uniqueSuffix}@bookmycourt.test`;
+  const ownerEmail = `qa-owner-${uniqueSuffix}@bookmyplay.test`;
   const ownerName = 'QA Owner';
 
   let ownerId: string | undefined;

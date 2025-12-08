@@ -11,7 +11,7 @@ import { generateSlug, generateReferenceCode } from '../src/lib/utils';
 
 const demoOwnerSeed = {
   name: 'Demo Sports Collective',
-  email: 'demo-owner@bookmycourt.test',
+  email: 'demo-owner@bookmyplay.test',
   password: 'PlayHard123!',
   phone: '0300-1234567',
 };

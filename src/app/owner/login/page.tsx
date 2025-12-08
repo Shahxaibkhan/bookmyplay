@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { Suspense, useState } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
@@ -14,7 +14,7 @@ type LoginForm = {
 const getErrorMessage = (err: unknown) =>
   err instanceof Error ? err.message : 'Something went wrong';
 
-export default function OwnerLogin() {
+function OwnerLoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [formData, setFormData] = useState<LoginForm>({
@@ -141,5 +141,19 @@ export default function OwnerLogin() {
       </div>
       </div>
     </>
+  );
+}
+
+export default function OwnerLogin() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-emerald-50 to-lime-100 flex items-center justify-center p-4 text-emerald-800">
+          Loading owner login...
+        </div>
+      }
+    >
+      <OwnerLoginContent />
+    </Suspense>
   );
 }

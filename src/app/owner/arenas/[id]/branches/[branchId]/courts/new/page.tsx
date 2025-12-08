@@ -165,8 +165,11 @@ export default function NewCourtPage() {
   ) => {
     setTimePrices((prev) => {
       const updated = [...prev];
-      updated[index][field] =
-        field === 'dayGroup' ? (value as TimePriceGroup) : value;
+      if (field === 'dayGroup') {
+        updated[index].dayGroup = value as TimePriceGroup;
+      } else {
+        updated[index][field] = value;
+      }
       return updated;
     });
   };

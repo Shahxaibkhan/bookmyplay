@@ -77,9 +77,61 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    const bookings = await Booking.find(query).sort({ createdAt: -1 });
+    const bookings = await Booking.find(query)
+      .sort({ createdAt: -1 })
+      .lean();
 
-    return NextResponse.json({ bookings }, { status: 200 });
+    if (!bookings.length) {
+      return NextResponse.json({ bookings: [] }, { status: 200 });
+    }
+
+    const uniqueIds = (key: 'arenaId' | 'branchId' | 'courtId') =>
+      Array.from(
+        new Set(
+          bookings
+            .map((booking) => booking[key])
+            .filter((value): value is string => Boolean(value))
+        )
+      );
+
+    const arenaIds = uniqueIds('arenaId');
+    const branchIds = uniqueIds('branchId');
+    const courtIds = uniqueIds('courtId');
+
+    const [arenas, branches, courts] = await Promise.all([
+      arenaIds.length
+        ? Arena.find({ _id: { $in: arenaIds } }).select('name').lean()
+        : [],
+      branchIds.length
+        ? Branch.find({ _id: { $in: branchIds } }).select('name').lean()
+        : [],
+      courtIds.length
+        ? Court.find({ _id: { $in: courtIds } }).select('name').lean()
+        : [],
+    ]);
+
+    const toMap = (docs: Array<{ _id: unknown; name?: string }>) => {
+      const map: Record<string, string> = {};
+      docs.forEach((doc) => {
+        if (doc?._id && doc.name) {
+          map[String(doc._id)] = doc.name;
+        }
+      });
+      return map;
+    };
+
+    const arenaMap = toMap(arenas);
+    const branchMap = toMap(branches);
+    const courtMap = toMap(courts);
+
+    const enrichedBookings = bookings.map((booking) => ({
+      ...booking,
+      arenaName: arenaMap[String(booking.arenaId)] ?? null,
+      branchName: branchMap[String(booking.branchId)] ?? null,
+      courtName: courtMap[String(booking.courtId)] ?? null,
+    }));
+
+    return NextResponse.json({ bookings: enrichedBookings }, { status: 200 });
   } catch (error) {
     console.error('Get bookings error:', error);
     return NextResponse.json(

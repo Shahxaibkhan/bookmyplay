@@ -754,7 +754,7 @@ Please confirm this booking. Thank you!
                       <p>
                         <span className="font-medium">Total Duration:</span>{' '}
                         {(
-                          (selectedSlots.length * (selectedCourt.slotDuration || 60)) /
+                          (selectedSlots.length * (selectedCourt?.slotDuration ?? 60)) /
                           60
                         )
                           .toFixed(1)

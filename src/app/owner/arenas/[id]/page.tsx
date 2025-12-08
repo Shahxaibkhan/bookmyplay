@@ -175,7 +175,7 @@ export default function ArenaDetailPage() {
       
       {/* Branches card */}
       <div className="rounded-2xl border border-emerald-200 bg-white p-6 shadow-sm">
-        <div className="mb-6 flex items-center justify-between">
+        <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h3 className="text-xl font-semibold text-slate-900">Branches</h3>
             <p className="mt-1 text-sm text-slate-600">
@@ -184,7 +184,7 @@ export default function ArenaDetailPage() {
           </div>
           <Link
             href={`/owner/arenas/${arenaId}/branches/new`}
-            className="bg-gradient-to-r from-emerald-500 via-emerald-600 to-emerald-500 text-white px-4 py-2 rounded-lg hover:from-emerald-600 hover:via-emerald-700 hover:to-emerald-600 transition-all font-semibold text-sm flex items-center gap-2 shadow-lg shadow-emerald-500/40"
+            className="flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-emerald-500 via-emerald-600 to-emerald-500 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-emerald-500/40 transition-all hover:from-emerald-600 hover:via-emerald-700 hover:to-emerald-600 sm:w-auto"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />

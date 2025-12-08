@@ -292,7 +292,7 @@ export default function BranchDetailPage() {
         </div>
 
         <div className="rounded-2xl border border-emerald-200 bg-white p-6 shadow-sm">
-          <div className="mb-6 flex items-center justify-between">
+          <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h3 className="text-xl font-semibold text-slate-900">Courts</h3>
               <p className="mt-1 text-sm text-slate-600">
@@ -301,7 +301,7 @@ export default function BranchDetailPage() {
             </div>
             <Link
               href={`/owner/arenas/${arenaId}/branches/${branchId}/courts/new`}
-              className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-emerald-500 via-emerald-600 to-emerald-500 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+              className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-emerald-500 via-emerald-600 to-emerald-500 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md sm:w-auto"
             >
               <svg
                 className="h-5 w-5"

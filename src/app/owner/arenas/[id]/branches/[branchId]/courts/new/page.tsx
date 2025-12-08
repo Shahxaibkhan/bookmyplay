@@ -366,73 +366,71 @@ export default function NewCourtPage() {
                   Set opening and closing times for each day. Slots will be
                   generated within these timings.
                 </p>
-                <div className="space-y-2">
+                <div className="space-y-3">
                   {schedule.map((day, index) => (
                     <div
                       key={day.day}
-                      className="flex flex-wrap items-center gap-3 rounded-lg border border-gray-200 bg-gray-50 px-3 py-2"
+                      className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm"
                     >
-                      <button
-                        type="button"
-                        onClick={() => toggleDay(index)}
-                        className={`flex h-5 w-5 items-center justify-center rounded border text-xs font-semibold ${
-                          day.isOpen
-                            ? 'border-emerald-500 bg-emerald-500 text-white'
-                            : 'border-gray-300 bg-white text-gray-400'
-                        }`}
-                      >
-                        ✓
-                      </button>
-                      <span className="w-24 text-sm font-medium text-gray-800">
-                        {day.day}
-                      </span>
-                      {day.isOpen ? (
-                        <div className="flex items-center gap-3 text-sm">
-                          <label className="inline-flex items-center gap-1 text-xs font-medium text-gray-700">
+                      <div className="flex flex-wrap items-center justify-between gap-3">
+                        <div className="flex items-center gap-3">
+                          <button
+                            type="button"
+                            onClick={() => toggleDay(index)}
+                            className={`flex h-6 w-6 items-center justify-center rounded-full border text-xs font-semibold ${
+                              day.isOpen
+                                ? 'border-emerald-500 bg-emerald-500 text-white'
+                                : 'border-gray-300 bg-white text-gray-400'
+                            }`}
+                          >
+                            ✓
+                          </button>
+                          <span className="text-base font-semibold text-gray-900">
+                            {day.day}
+                          </span>
+                        </div>
+                        {day.isOpen ? (
+                          <label className="inline-flex items-center gap-2 text-xs font-medium text-gray-700">
                             <input
                               type="checkbox"
                               checked={day.isAllDay || false}
                               onChange={(e) =>
                                 updateDayTime(index, 'isAllDay', e.target.checked)
                               }
-                              className="h-3 w-3 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
+                              className="h-3.5 w-3.5 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
                             />
                             <span>All day (24 hrs)</span>
                           </label>
-                          {!day.isAllDay && (
-                            <div className="flex items-center gap-2">
-                              <input
-                                type="time"
-                                value={day.openingTime}
-                                onChange={(e) =>
-                                  updateDayTime(
-                                    index,
-                                    'openingTime',
-                                    e.target.value,
-                                  )
-                                }
-                                className="rounded border border-gray-300 px-2 py-1 text-gray-900"
-                              />
-                              <span className="text-gray-500">to</span>
-                              <input
-                                type="time"
-                                value={day.closingTime}
-                                onChange={(e) =>
-                                  updateDayTime(
-                                    index,
-                                    'closingTime',
-                                    e.target.value,
-                                  )
-                                }
-                                className="rounded border border-gray-300 px-2 py-1 text-gray-900"
-                              />
-                            </div>
-                          )}
+                        ) : (
+                          <span className="text-xs font-semibold text-red-600">Closed</span>
+                        )}
+                      </div>
+
+                      {day.isOpen && !day.isAllDay && (
+                        <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                          <div>
+                            <p className="text-xs font-medium text-gray-600">Opens at</p>
+                            <input
+                              type="time"
+                              value={day.openingTime}
+                              onChange={(e) =>
+                                updateDayTime(index, 'openingTime', e.target.value)
+                              }
+                              className="mt-2 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900"
+                            />
+                          </div>
+                          <div>
+                            <p className="text-xs font-medium text-gray-600">Closes at</p>
+                            <input
+                              type="time"
+                              value={day.closingTime}
+                              onChange={(e) =>
+                                updateDayTime(index, 'closingTime', e.target.value)
+                              }
+                              className="mt-2 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900"
+                            />
+                          </div>
                         </div>
-                      ) : (
-                        <span className="text-xs font-medium text-red-600">
-                          Closed
-                        </span>
                       )}
                     </div>
                   ))}
@@ -595,45 +593,47 @@ export default function NewCourtPage() {
                         {dayPrices.map((dp, index) => (
                           <div
                             key={index}
-                            className="flex items-start gap-3 rounded-lg border border-amber-200 bg-white p-3"
+                            className="space-y-3 rounded-lg border border-amber-200 bg-white p-4"
                           >
-                            <div className="flex-1">
-                              <label className="mb-1 block text-xs font-semibold text-gray-700">
-                                Day
-                              </label>
-                              <select
-                                value={dp.day}
-                                onChange={(e) =>
-                                  updateDayPrice(index, 'day', e.target.value)
-                                }
-                                className="w-full rounded-lg border-2 border-gray-300 bg-white px-3 py-2 text-sm text-gray-900"
-                              >
-                                <option value="">Select day</option>
-                                {daysOfWeek.map((day) => (
-                                  <option key={day} value={day}>
-                                    {day}
-                                  </option>
-                                ))}
-                              </select>
-                            </div>
-                            <div className="flex-1">
-                              <label className="mb-1 block text-xs font-semibold text-gray-700">
-                                Price (Rs.)
-                              </label>
-                              <input
-                                type="number"
-                                placeholder="e.g., 1500"
-                                value={dp.price}
-                                onChange={(e) =>
-                                  updateDayPrice(index, 'price', e.target.value)
-                                }
-                                className="w-full rounded-lg border-2 border-gray-300 bg-white px-3 py-2 text-sm text-gray-900"
-                              />
+                            <div className="grid gap-3 sm:grid-cols-2">
+                              <div>
+                                <label className="mb-1 block text-xs font-semibold text-gray-700">
+                                  Day
+                                </label>
+                                <select
+                                  value={dp.day}
+                                  onChange={(e) =>
+                                    updateDayPrice(index, 'day', e.target.value)
+                                  }
+                                  className="w-full rounded-lg border-2 border-gray-300 bg-white px-3 py-2 text-sm text-gray-900"
+                                >
+                                  <option value="">Select day</option>
+                                  {daysOfWeek.map((day) => (
+                                    <option key={day} value={day}>
+                                      {day}
+                                    </option>
+                                  ))}
+                                </select>
+                              </div>
+                              <div>
+                                <label className="mb-1 block text-xs font-semibold text-gray-700">
+                                  Price (Rs.)
+                                </label>
+                                <input
+                                  type="number"
+                                  placeholder="e.g., 1500"
+                                  value={dp.price}
+                                  onChange={(e) =>
+                                    updateDayPrice(index, 'price', e.target.value)
+                                  }
+                                  className="w-full rounded-lg border-2 border-gray-300 bg-white px-3 py-2 text-sm text-gray-900"
+                                />
+                              </div>
                             </div>
                             <button
                               type="button"
                               onClick={() => removeDayPrice(index)}
-                              className="mt-6 rounded-lg bg-red-100 px-3 py-2 text-sm text-red-700 transition-colors hover:bg-red-200"
+                              className="w-full rounded-lg bg-red-50 px-3 py-2 text-sm font-semibold text-red-700 transition-colors hover:bg-red-100 sm:w-auto"
                             >
                               Remove
                             </button>
@@ -686,84 +686,70 @@ export default function NewCourtPage() {
                         {timePrices.map((tp, index) => (
                           <div
                             key={index}
-                            className="flex items-start gap-3 rounded-lg border border-indigo-200 bg-white p-3"
+                            className="space-y-3 rounded-lg border border-indigo-200 bg-white p-4"
                           >
-                            <div className="flex-1">
-                              <label className="mb-1 block text-xs font-semibold text-gray-700">
-                                From time
-                              </label>
-                              <input
-                                type="time"
-                                value={tp.fromTime}
-                                onChange={(e) =>
-                                  updateTimePrice(
-                                    index,
-                                    'fromTime',
-                                    e.target.value,
-                                  )
-                                }
-                                className="w-full rounded-lg border-2 border-gray-300 bg-white px-3 py-2 text-sm text-gray-900"
-                              />
-                            </div>
-                            <div className="flex-1">
-                              <label className="mb-1 block text-xs font-semibold text-gray-700">
-                                To time
-                              </label>
-                              <input
-                                type="time"
-                                value={tp.toTime}
-                                onChange={(e) =>
-                                  updateTimePrice(
-                                    index,
-                                    'toTime',
-                                    e.target.value,
-                                  )
-                                }
-                                className="w-full rounded-lg border-2 border-gray-300 bg-white px-3 py-2 text-sm text-gray-900"
-                              />
-                            </div>
-                            <div className="flex-1">
-                              <label className="mb-1 block text-xs font-semibold text-gray-700">
-                                Price (Rs.)
-                              </label>
-                              <input
-                                type="number"
-                                value={tp.price}
-                                onChange={(e) =>
-                                  updateTimePrice(
-                                    index,
-                                    'price',
-                                    e.target.value,
-                                  )
-                                }
-                                className="w-full rounded-lg border-2 border-gray-300 bg-white px-3 py-2 text-sm text-gray-900"
-                                placeholder="e.g., 2000"
-                              />
-                            </div>
-                            <div className="flex-1">
-                              <label className="mb-1 block text-xs font-semibold text-gray-700">
-                                Days
-                              </label>
-                              <select
-                                value={tp.dayGroup || 'all'}
-                                onChange={(e) =>
-                                  updateTimePrice(
-                                    index,
-                                    'dayGroup',
-                                    e.target.value,
-                                  )
-                                }
-                                className="w-full rounded-lg border-2 border-gray-300 bg-white px-3 py-2 text-sm text-gray-900"
-                              >
-                                <option value="all">All days</option>
-                                <option value="weekdays">Weekdays (Mon–Fri)</option>
-                                <option value="weekends">Weekends (Sat–Sun)</option>
-                              </select>
+                            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                              <div>
+                                <label className="mb-1 block text-xs font-semibold text-gray-700">
+                                  From time
+                                </label>
+                                <input
+                                  type="time"
+                                  value={tp.fromTime}
+                                  onChange={(e) =>
+                                    updateTimePrice(index, 'fromTime', e.target.value)
+                                  }
+                                  className="w-full rounded-lg border-2 border-gray-300 bg-white px-3 py-2 text-sm text-gray-900"
+                                />
+                              </div>
+                              <div>
+                                <label className="mb-1 block text-xs font-semibold text-gray-700">
+                                  To time
+                                </label>
+                                <input
+                                  type="time"
+                                  value={tp.toTime}
+                                  onChange={(e) =>
+                                    updateTimePrice(index, 'toTime', e.target.value)
+                                  }
+                                  className="w-full rounded-lg border-2 border-gray-300 bg-white px-3 py-2 text-sm text-gray-900"
+                                />
+                              </div>
+                              <div>
+                                <label className="mb-1 block text-xs font-semibold text-gray-700">
+                                  Price (Rs.)
+                                </label>
+                                <input
+                                  type="number"
+                                  value={tp.price}
+                                  onChange={(e) =>
+                                    updateTimePrice(index, 'price', e.target.value)
+                                  }
+                                  className="w-full rounded-lg border-2 border-gray-300 bg-white px-3 py-2 text-sm text-gray-900"
+                                  placeholder="e.g., 2000"
+                                />
+                              </div>
+                              <div>
+                                <label className="mb-1 block text-xs font-semibold text-gray-700">
+                                  Days
+                                </label>
+                                <select
+                                  value={tp.dayGroup || 'all'}
+                                  onChange={(e) =>
+                                    updateTimePrice(index, 'dayGroup', e.target.value)
+                                  }
+                                  className="w-full rounded-lg border-2 border-gray-300 bg-white px-3 py-2 text-sm text-gray-900"
+                                >
+                                  <option value="all">All days</option>
+                                  <option value="weekdays">Weekdays (Mon–Fri)</option>
+                                  <option value="weekends">Weekends (Sat–Sun)</option>
+                                </select>
+                              </div>
                             </div>
                             <button
                               type="button"
                               onClick={() => removeTimePrice(index)}
-                              className="mt-6 rounded-lg bg-red-100 px-3 py-2 text-sm text-red-700 transition-colors hover:bg-red-200"
+                              className="w-full rounded-lg bg-red-50 px-3 py-2 text-sm font-semibold text-red-700 transition-colors hover:bg-red-100 sm:w-auto"
                             >
                               Remove
                             </button>

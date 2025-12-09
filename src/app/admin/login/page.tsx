@@ -41,12 +41,12 @@ export default function AdminLogin() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-indigo-100 flex items-center justify-center p-4">
-      <div className="bg-white rounded-lg shadow-xl p-8 w-full max-w-md">
-        <div className="text-center mb-8">
-          <div className="bg-purple-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+    <div className="min-h-screen bg-gradient-to-b from-emerald-50 via-emerald-50 to-lime-100 flex items-center justify-center px-4 py-10">
+      <div className="w-full max-w-md rounded-3xl border border-emerald-100 bg-white/90 p-8 shadow-xl shadow-emerald-500/20 backdrop-blur">
+        <div className="mb-8 text-center">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-100">
             <svg
-              className="w-8 h-8 text-purple-600"
+              className="h-8 w-8 text-emerald-600"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -65,21 +65,21 @@ export default function AdminLogin() {
               />
             </svg>
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Admin Portal
-          </h1>
-          <p className="text-gray-600">Manage BookMyPlay platform</p>
+          <h1 className="mb-2 text-3xl font-bold text-slate-900">Admin Portal</h1>
+          <p className="text-sm text-slate-600">
+            Sign in to monitor arenas, branches and bookings
+          </p>
         </div>
 
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
+          <div className="mb-4 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-semibold text-rose-700">
             {error}
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="mb-1 block text-sm font-semibold text-slate-700">
               Email
             </label>
             <input
@@ -89,13 +89,13 @@ export default function AdminLogin() {
               onChange={(e) =>
                 setFormData({ ...formData, email: e.target.value })
               }
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-gray-900 bg-white"
+              className="w-full rounded-2xl border border-emerald-200 bg-white px-4 py-2 text-slate-900 transition focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200"
               placeholder="admin@bookmyplay.com"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="mb-1 block text-sm font-semibold text-slate-700">
               Password
             </label>
             <input
@@ -105,7 +105,7 @@ export default function AdminLogin() {
               onChange={(e) =>
                 setFormData({ ...formData, password: e.target.value })
               }
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-gray-900 bg-white"
+              className="w-full rounded-2xl border border-emerald-200 bg-white px-4 py-2 text-slate-900 transition focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200"
               placeholder="Enter your password"
             />
           </div>
@@ -113,14 +113,17 @@ export default function AdminLogin() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-purple-600 text-white py-3 rounded-lg hover:bg-purple-700 transition-colors font-semibold disabled:bg-purple-400 disabled:cursor-not-allowed"
+            className="w-full rounded-2xl bg-gradient-to-r from-emerald-500 via-emerald-600 to-emerald-500 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-500/30 transition hover:from-emerald-600 hover:via-emerald-700 hover:to-emerald-600 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {loading ? 'Logging in...' : 'Login as Admin'}
           </button>
         </form>
 
         <div className="mt-6 text-center">
-          <Link href="/" className="text-gray-500 hover:text-gray-700 text-sm">
+          <Link
+            href="/"
+            className="text-sm font-semibold text-slate-500 transition hover:text-slate-700"
+          >
             ← Back to Home
           </Link>
         </div>

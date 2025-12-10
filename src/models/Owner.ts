@@ -9,6 +9,10 @@ export interface IOwner {
   accountType: 'free' | 'premium';
   premiumExpiresAt?: Date;
   isActive: boolean;
+  isEmailVerified: boolean;
+  emailVerificationToken?: string;
+  emailVerificationExpiresAt?: Date;
+  emailVerifiedAt?: Date;
   role: 'owner' | 'admin';
   createdAt: Date;
   updatedAt: Date;
@@ -47,6 +51,19 @@ const OwnerSchema = new Schema<IOwner>(
     isActive: {
       type: Boolean,
       default: true,
+    },
+    isEmailVerified: {
+      type: Boolean,
+      default: false,
+    },
+    emailVerificationToken: {
+      type: String,
+    },
+    emailVerificationExpiresAt: {
+      type: Date,
+    },
+    emailVerifiedAt: {
+      type: Date,
     },
     role: {
       type: String,

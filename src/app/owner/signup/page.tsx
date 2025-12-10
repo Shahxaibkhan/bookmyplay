@@ -16,20 +16,25 @@ const getErrorMessage = (err: unknown) =>
   err instanceof Error ? err.message : 'Something went wrong';
 
 export default function OwnerSignup() {
-  const router = useRouter();
   const [formData, setFormData] = useState<SignupForm>({
     name: '',
     email: '',
     password: '',
     phone: '',
   });
+  const router = useRouter();
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [loaderHeadline, setLoaderHeadline] = useState('Creating your owner account...');
+  const [loaderSubtext, setLoaderSubtext] = useState('Provisioning secure access');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setLoaderHeadline('Creating your owner account...');
+    setLoaderSubtext('Provisioning secure access');
     setLoading(true);
+    let succeeded = false;
 
     try {
       const res = await fetch('/api/owner/signup', {
@@ -44,11 +49,18 @@ export default function OwnerSignup() {
         throw new Error(data?.error || 'Something went wrong');
       }
 
-      router.push('/owner/login?registered=true');
+      succeeded = true;
+      setLoaderHeadline('Account created! Check your inbox.');
+      setLoaderSubtext('Redirecting you to login...');
+      setTimeout(() => {
+        router.push('/owner/login?registered=1');
+      }, 1600);
     } catch (err: unknown) {
       setError(getErrorMessage(err));
     } finally {
-      setLoading(false);
+      if (!succeeded) {
+        setLoading(false);
+      }
     }
   };
 
@@ -56,8 +68,8 @@ export default function OwnerSignup() {
     <>
       <ScreenLoader
         show={loading}
-        headline="Creating your owner account..."
-        subtext="Provisioning secure access"
+        headline={loaderHeadline}
+        subtext={loaderSubtext}
       />
       <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-emerald-50 via-emerald-50 to-lime-100 p-4">
       <div className="w-full max-w-md rounded-xl border border-emerald-100 bg-white p-8 shadow-2xl">
@@ -69,7 +81,7 @@ export default function OwnerSignup() {
         </div>
 
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
+          <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
             {error}
           </div>
         )}

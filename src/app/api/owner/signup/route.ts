@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
+import { randomBytes } from 'crypto';
 import connectDB from '@/lib/mongodb';
 import Owner from '@/models/Owner';
+import { sendEmailVerification } from '@/lib/email';
 
 export async function POST(request: NextRequest) {
   try {
@@ -25,6 +27,8 @@ export async function POST(request: NextRequest) {
     }
 
     const hashedPassword = await bcrypt.hash(password, 12);
+    const verificationToken = randomBytes(32).toString('hex');
+    const verificationExpires = new Date(Date.now() + 1000 * 60 * 60 * 24);
 
     const owner = await Owner.create({
       name,
@@ -33,11 +37,20 @@ export async function POST(request: NextRequest) {
       phone,
       role: 'owner',
       accountType: 'free',
+      isEmailVerified: false,
+      emailVerificationToken: verificationToken,
+      emailVerificationExpiresAt: verificationExpires,
+    });
+
+    await sendEmailVerification({
+      email,
+      name,
+      token: verificationToken,
     });
 
     return NextResponse.json(
       {
-        message: 'Account created successfully',
+        message: 'Account created. Please verify your email to continue.',
         ownerId: owner._id,
       },
       { status: 201 }

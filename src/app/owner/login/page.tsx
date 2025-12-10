@@ -25,6 +25,7 @@ function OwnerLoginContent() {
   const [loading, setLoading] = useState(false);
 
   const registered = searchParams.get('registered');
+  const verified = searchParams.get('verified');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -66,8 +67,14 @@ function OwnerLoginContent() {
         </div>
 
         {registered && (
-          <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded mb-4">
-            Account created successfully! Please login.
+          <div className="mb-4 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-800">
+            Account created successfully! Please verify your email before logging in.
+          </div>
+        )}
+
+        {verified && (
+          <div className="mb-4 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-800">
+            Email verified! You can log in now.
           </div>
         )}
 

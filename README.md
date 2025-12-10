@@ -74,6 +74,11 @@ NEXT_PUBLIC_FIREBASE_APP_ID=your-app-id
 # Admin Credentials
 ADMIN_EMAIL=admin@bookmyplay.com
 ADMIN_PASSWORD=admin123456
+
+# Email (Resend)
+RESEND_API_KEY=your-resend-api-key
+EMAIL_FROM="BookMyPlay <onboarding@resend.dev>"
+APP_BASE_URL=http://localhost:3000
 ```
 
 ### Step 3: Setup MongoDB
@@ -123,7 +128,8 @@ Visit http://localhost:3000
    - Visit http://localhost:3000
    - Click "Sign Up" under Arena Owner
    - Fill registration form
-   - Login with credentials
+   - Verify the link sent to your email (expires in 24 hours)
+   - Login after successful verification
 
 2. **Create Arena**
    - Go to Dashboard → Arenas

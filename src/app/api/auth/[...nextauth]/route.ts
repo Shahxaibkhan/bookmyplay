@@ -3,13 +3,19 @@ import NextAuth from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { rateLimit } from '@/lib/rateLimiter';
 
+type NextAuthContext = {
+	params: {
+		nextauth: string[];
+	};
+};
+
 const handler = NextAuth(authOptions);
 
-export async function GET(request: NextRequest) {
-	return handler(request) as Promise<NextResponse>;
+export async function GET(request: NextRequest, context: NextAuthContext) {
+	return handler(request, context) as Promise<NextResponse>;
 }
 
-export async function POST(request: NextRequest) {
+export async function POST(request: NextRequest, context: NextAuthContext) {
 	const limiterKey = `nextauth:${request.ip || request.headers.get('x-forwarded-for') || 'unknown'}`;
 	const limiter = rateLimit(limiterKey, { limit: 10, windowMs: 60_000 });
 
@@ -20,5 +26,5 @@ export async function POST(request: NextRequest) {
 		);
 	}
 
-	return handler(request) as Promise<NextResponse>;
+	return handler(request, context) as Promise<NextResponse>;
 }

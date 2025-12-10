@@ -2,9 +2,20 @@ import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import connectDB from '@/lib/mongodb';
 import Owner from '@/models/Owner';
+import { rateLimit } from '@/lib/rateLimiter';
 
 export async function POST(request: NextRequest) {
   try {
+    const limiterKey = `owner-signup:${request.ip || request.headers.get('x-forwarded-for') || 'unknown'}`;
+    const limiter = rateLimit(limiterKey, { limit: 5, windowMs: 60_000 });
+
+    if (!limiter.ok) {
+      return NextResponse.json(
+        { error: 'Too many signup attempts. Please try again in a minute.' },
+        { status: 429 },
+      );
+    }
+
     const { name, email, password, phone } = await request.json();
 
     if (!name || !email || !password || !phone) {

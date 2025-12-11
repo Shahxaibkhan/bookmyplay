@@ -1,6 +1,16 @@
-import 'dotenv/config';
+import { config } from 'dotenv';
+import { existsSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { afterAll } from 'vitest';
 import { MongoMemoryServer } from 'mongodb-memory-server';
+
+// Prefer project-specific overrides before falling back to default .env
+const envLocalPath = resolve(process.cwd(), '.env.local');
+if (existsSync(envLocalPath)) {
+  config({ path: envLocalPath });
+} else {
+  config();
+}
 
 declare global {
   // eslint-disable-next-line no-var

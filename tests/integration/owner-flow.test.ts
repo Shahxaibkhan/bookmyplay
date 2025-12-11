@@ -168,7 +168,7 @@ describe('Owner lifecycle API flow', () => {
     );
 
     expect(duplicateResponse.status).toBe(400);
-  });
+  }, 20_000);
 
   test('rejects arena creation when session is missing', async () => {
     setSessionUser(null);

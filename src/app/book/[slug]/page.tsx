@@ -113,15 +113,12 @@ export default function PublicBookingPage() {
     customerPhone: '',
     paymentReferenceId: '',
   });
-  const TOTAL_REDIRECT_SECONDS = 10;
   const [isRedirectModalOpen, setIsRedirectModalOpen] = useState(false);
-  const [redirectCountdown, setRedirectCountdown] = useState(TOTAL_REDIRECT_SECONDS);
   const [pendingWhatsappUrl, setPendingWhatsappUrl] = useState<string | null>(null);
 
   const closeRedirectModal = useCallback(() => {
     setIsRedirectModalOpen(false);
     setPendingWhatsappUrl(null);
-    setRedirectCountdown(TOTAL_REDIRECT_SECONDS);
   }, []);
 
   const handleManualRedirect = useCallback(() => {
@@ -129,24 +126,6 @@ export default function PublicBookingPage() {
     window.open(pendingWhatsappUrl, '_blank', 'noopener,noreferrer');
     closeRedirectModal();
   }, [closeRedirectModal, pendingWhatsappUrl]);
-
-  useEffect(() => {
-    if (!isRedirectModalOpen || !pendingWhatsappUrl) {
-      return;
-    }
-
-    if (redirectCountdown <= 0) {
-      window.open(pendingWhatsappUrl, '_blank', 'noopener,noreferrer');
-      closeRedirectModal();
-      return;
-    }
-
-    const timer = setTimeout(() => {
-      setRedirectCountdown((prev) => prev - 1);
-    }, 1000);
-
-    return () => clearTimeout(timer);
-  }, [closeRedirectModal, isRedirectModalOpen, pendingWhatsappUrl, redirectCountdown]);
 
   useEffect(() => {
     const fetchArenaData = async () => {
@@ -407,7 +386,6 @@ Please confirm this booking. Thank you!
     )}`;
 
     setPendingWhatsappUrl(whatsappURL);
-    setRedirectCountdown(TOTAL_REDIRECT_SECONDS);
     setIsRedirectModalOpen(true);
 
     // Refresh booked slots and available slots so just-booked
@@ -941,22 +919,13 @@ Please confirm this booking. Thank you!
             <p className="text-xs font-semibold uppercase tracking-[0.3em] text-emerald-600">Heads up</p>
             <h3 className="mt-3 text-2xl font-bold text-gray-900">Share your payment proof</h3>
             <p className="mt-3 text-sm text-gray-600">
-              Kindly send the transaction screenshot on WhatsApp so our team can verify and lock your slot.
+              Kindly send the transaction screenshot on WhatsApp so our team can verify and lock your slot within minutes.
             </p>
-            <p className="mt-4 text-lg font-semibold text-emerald-700">
-              Redirecting in {redirectCountdown}...
-            </p>
-            <div className="mt-4 h-1 w-full rounded-full bg-emerald-100">
-              <div
-                className="h-full rounded-full bg-emerald-600 transition-[width] duration-1000 ease-linear"
-                style={{ width: `${(redirectCountdown / TOTAL_REDIRECT_SECONDS) * 100}%` }}
-              />
-            </div>
             <button
               onClick={handleManualRedirect}
               className="mt-6 w-full rounded-2xl bg-emerald-500 py-3 text-white font-semibold shadow-lg shadow-emerald-600/30 hover:bg-emerald-600 transition-colors"
             >
-              Open WhatsApp now
+              OK
             </button>
           </div>
         </div>

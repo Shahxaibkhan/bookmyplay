@@ -113,6 +113,40 @@ export default function PublicBookingPage() {
     customerPhone: '',
     paymentReferenceId: '',
   });
+  const TOTAL_REDIRECT_SECONDS = 10;
+  const [isRedirectModalOpen, setIsRedirectModalOpen] = useState(false);
+  const [redirectCountdown, setRedirectCountdown] = useState(TOTAL_REDIRECT_SECONDS);
+  const [pendingWhatsappUrl, setPendingWhatsappUrl] = useState<string | null>(null);
+
+  const closeRedirectModal = useCallback(() => {
+    setIsRedirectModalOpen(false);
+    setPendingWhatsappUrl(null);
+    setRedirectCountdown(TOTAL_REDIRECT_SECONDS);
+  }, []);
+
+  const handleManualRedirect = useCallback(() => {
+    if (!pendingWhatsappUrl) return;
+    window.open(pendingWhatsappUrl, '_blank', 'noopener,noreferrer');
+    closeRedirectModal();
+  }, [closeRedirectModal, pendingWhatsappUrl]);
+
+  useEffect(() => {
+    if (!isRedirectModalOpen || !pendingWhatsappUrl) {
+      return;
+    }
+
+    if (redirectCountdown <= 0) {
+      window.open(pendingWhatsappUrl, '_blank', 'noopener,noreferrer');
+      closeRedirectModal();
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      setRedirectCountdown((prev) => prev - 1);
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, [closeRedirectModal, isRedirectModalOpen, pendingWhatsappUrl, redirectCountdown]);
 
   useEffect(() => {
     const fetchArenaData = async () => {
@@ -278,11 +312,6 @@ export default function PublicBookingPage() {
       return;
     }
 
-    if (!bookingForm.paymentReferenceId) {
-      setToast({ message: 'Please enter the payment transaction ID', type: 'warning' });
-      return;
-    }
-
     if (!selectedSlots.length) {
       setToast({ message: 'Please select at least one time slot', type: 'warning' });
       return;
@@ -377,8 +406,9 @@ Please confirm this booking. Thank you!
       message
     )}`;
 
-    // After creating bookings, open WhatsApp and refresh local slots
-    window.open(whatsappURL, '_blank');
+    setPendingWhatsappUrl(whatsappURL);
+    setRedirectCountdown(TOTAL_REDIRECT_SECONDS);
+    setIsRedirectModalOpen(true);
 
     // Refresh booked slots and available slots so just-booked
     // times appear as disabled when user returns to this page
@@ -428,7 +458,7 @@ Please confirm this booking. Thank you!
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-green-50 to-lime-50 pb-20 md:pb-0">
+    <div className="min-h-screen bg-slate-950 text-white pb-20 md:pb-0">
       {toast && (
         <Toast
           message={toast.message}
@@ -437,49 +467,52 @@ Please confirm this booking. Thank you!
         />
       )}
       
-      <div className="bg-gradient-to-r from-emerald-700 via-emerald-600 to-emerald-700 shadow-lg">
-        <div className="max-w-5xl mx-auto px-4 py-6">
-          <h1 className="text-3xl font-bold text-white">
-            {data.arena.name}
-          </h1>
-          <p className="text-emerald-100 mt-1">{data.arena.description}</p>
-
-          <div className="mt-4 flex flex-wrap gap-2 text-xs text-emerald-50">
-            {['Branch','Court','Date','Slot','Details'].map((label, index) => {
-              const step = index + 1;
-              const active =
-                (step === 1 && selectedBranch) ||
-                (step === 2 && selectedCourt) ||
-                (step === 3 && selectedDate) ||
-                (step === 4 && selectedSlots.length > 0) ||
-                (step === 5 && selectedSlots.length > 0);
-              return (
-                <div
-                  key={label}
-                  className={`flex items-center gap-2 rounded-full px-3 py-1 bg-emerald-700/40 border border-emerald-300/40 ${
-                    active ? 'opacity-100' : 'opacity-60'
-                  }`}
-                >
-                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500 text-[10px] font-bold">
-                    {step}
-                  </span>
-                  <span className="uppercase tracking-wide text-[10px] font-semibold">
-                    {label}
-                  </span>
-                </div>
-              );
-            })}
+      <div className="bg-[radial-gradient(circle_at_top,_rgba(16,185,129,0.25),_transparent_60%)] border-b border-white/5">
+        <div className="max-w-6xl mx-auto px-4 py-10 flex flex-col gap-8 lg:flex-row lg:items-center">
+          <div className="flex-1 space-y-4">
+            <p className="text-xs uppercase tracking-[0.4em] text-emerald-300">BookMyPlay Portal</p>
+            <h1 className="text-4xl sm:text-5xl font-semibold text-white">{data.arena.name}</h1>
+            <p className="text-sm text-white/70 max-w-2xl">
+              {data.arena.description || 'Select a branch and slot to lock in your game. Share proof on WhatsApp so we can activate instantly.'}
+            </p>
+          </div>
+          <div className="w-full lg:w-80 bg-white/5 border border-white/10 rounded-3xl p-5 shadow-2xl shadow-emerald-500/15">
+            <p className="text-xs uppercase tracking-[0.3em] text-white/60">Progress</p>
+            <div className="mt-4 space-y-3">
+              {['Branch','Court','Date','Slot','Details'].map((label, index) => {
+                const step = index + 1;
+                const active =
+                  (step === 1 && selectedBranch) ||
+                  (step === 2 && selectedCourt) ||
+                  (step === 3 && selectedDate) ||
+                  (step === 4 && selectedSlots.length > 0) ||
+                  (step === 5 && selectedSlots.length > 0);
+                return (
+                  <div
+                    key={label}
+                    className={`flex items-center justify-between rounded-2xl px-4 py-2 border ${
+                      active ? 'border-emerald-400 bg-emerald-400/10 text-white' : 'border-white/10 text-white/60'
+                    }`}
+                  >
+                    <div>
+                      <p className="text-[10px] uppercase tracking-[0.3em]">Step {step}</p>
+                      <p className="text-sm font-semibold">{label}</p>
+                    </div>
+                    <span className={`h-2 w-2 rounded-full ${active ? 'bg-emerald-400' : 'bg-white/30'}`} />
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </div>
-      </div>
 
-      <div className="max-w-5xl mx-auto px-4 py-8">
-        <div className="grid md:grid-cols-2 gap-6">
-          <div className="space-y-6">
-            <div className="bg-white rounded-xl shadow-lg p-6 border border-emerald-100">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">
-                1. Select Branch
-              </h2>
+      <div className="max-w-6xl mx-auto px-4 py-10 grid lg:grid-cols-[1.1fr,0.9fr] gap-6">
+        <div className="space-y-6">
+          <div className="rounded-3xl bg-white text-slate-900 p-6 shadow-2xl shadow-emerald-500/15 border border-slate-100">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-semibold">1. Select branch</h2>
+              <span className="text-xs font-semibold text-emerald-600">Required</span>
+            </div>
               {data.branches.length === 0 ? (
                 <div className="bg-yellow-50 border-2 border-yellow-200 rounded-lg p-4 text-center">
                   <p className="text-yellow-900 font-semibold">No Branches Available</p>
@@ -509,11 +542,12 @@ Please confirm this booking. Thank you!
               )}
             </div>
 
-            {selectedBranch && (
-              <div className="bg-white rounded-xl shadow-lg p-6 border border-emerald-100">
-                <h2 className="text-xl font-bold text-gray-900 mb-4">
-                  2. Select Court
-                </h2>
+          {selectedBranch && (
+            <div className="rounded-3xl bg-white text-slate-900 p-6 shadow-2xl shadow-emerald-500/15 border border-slate-100">
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-semibold">2. Select court</h2>
+                <span className="text-xs text-slate-500">{selectedCourt ? 'Chosen' : 'Pick one'}</span>
+              </div>
                 <select
                   value={selectedCourt?._id || ''}
                   onChange={(e) => {
@@ -541,16 +575,18 @@ Please confirm this booking. Thank you!
             )}
 
             {selectedCourt && (
-              <div className="bg-white rounded-xl shadow-lg p-6 border border-emerald-100">
-                <h2 className="text-xl font-bold text-gray-900 mb-4">
-                  3. Select Date
-                </h2>
+              <div className="rounded-3xl bg-white text-slate-900 p-6 shadow-2xl shadow-emerald-500/15 border border-slate-100">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-xl font-semibold">3. Pick a date</h2>
+                  <span className="text-xs text-slate-500">{selectedDate ? 'Scheduled' : 'Choose day'}</span>
+                </div>
+                <p className="text-xs text-slate-500 mt-1">Slots refresh daily at midnight.</p>
                 <input
                   type="date"
                   value={selectedDate}
                   onChange={(e) => setSelectedDate(e.target.value)}
                   min={new Date().toISOString().split('T')[0]}
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-gray-900 bg-white"
+                  className="mt-4 w-full rounded-2xl border border-slate-200 px-4 py-3 text-base focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200"
                 />
               </div>
             )}
@@ -558,27 +594,29 @@ Please confirm this booking. Thank you!
 
           <div className="space-y-6">
             {selectedDate && availableSlots.length > 0 && (
-              <div className="bg-white rounded-xl shadow-lg p-6 border border-emerald-100">
-                <h2 className="text-xl font-bold text-gray-900 mb-4">
-                  4. Select Time Slot
-                </h2>
-                <div className="grid grid-cols-2 gap-3 max-h-96 overflow-y-auto">
+              <div className="rounded-3xl bg-white text-slate-900 p-6 shadow-2xl shadow-emerald-500/15 border border-slate-100">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div>
+                    <p className="text-[11px] uppercase tracking-[0.3em] text-slate-400">Step 4</p>
+                    <h2 className="text-xl font-semibold">4. Lock your slot</h2>
+                  </div>
+                  <span className="text-xs font-medium text-emerald-600">
+                    {selectedSlots.length ? `${selectedSlots.length} selected` : 'Pick at least one'}
+                  </span>
+                </div>
+                <div className="mt-5 grid grid-cols-2 gap-3 max-h-96 overflow-y-auto sm:grid-cols-3">
                   {availableSlots.map((slot, index) => {
                     if (!slot.available) {
                       return (
                         <div
                           key={index}
-                          className="p-4 rounded-lg border-2 border-gray-200 bg-gray-100 text-left opacity-60 cursor-not-allowed"
+                          className="rounded-2xl border border-slate-100 bg-slate-100/70 px-4 py-3 text-left text-sm text-slate-400 shadow-inner"
                         >
-                          <p className="font-semibold text-gray-500">
+                          <p className="font-semibold text-slate-500">
                             {formatTime(slot.startTime)}
                           </p>
-                          <p className="text-sm text-gray-400">
-                            {slot.endTime && `to ${formatTime(slot.endTime)}`}
-                          </p>
-                          <p className="text-gray-500 font-medium mt-2 text-sm">
-                            Booked
-                          </p>
+                          <p>{slot.endTime && `to ${formatTime(slot.endTime)}`}</p>
+                          <p className="mt-1 text-xs uppercase tracking-wide">Booked</p>
                         </div>
                       );
                     }
@@ -589,26 +627,30 @@ Please confirm this booking. Thank you!
                         s.endTime === slot.endTime
                     );
                     return (
-                    <button
-                      key={index}
-                      type="button"
-                      onClick={() => toggleSlotSelection(slot)}
-                      className={`p-4 rounded-lg border-2 transition-all text-left ${
-                        isSelected
-                          ? 'border-emerald-500 bg-emerald-50'
-                          : 'border-gray-200 hover:border-emerald-300'
-                      }`}
-                    >
-                      <p className="font-semibold text-gray-900">
-                        {formatTime(slot.startTime)}
-                      </p>
-                      <p className="text-sm text-gray-600">
-                        {slot.endTime && `to ${formatTime(slot.endTime)}`}
-                      </p>
-                      <p className="text-emerald-600 font-bold mt-2">
-                        Rs {slot.price}
-                      </p>
-                    </button>
+                      <button
+                        key={index}
+                        type="button"
+                        onClick={() => toggleSlotSelection(slot)}
+                        className={`rounded-2xl border px-4 py-3 text-left text-sm transition-all shadow-sm ${
+                          isSelected
+                            ? 'border-emerald-500 bg-emerald-500 text-white shadow-emerald-200'
+                            : 'border-slate-200 bg-white hover:border-emerald-300 hover:shadow-lg'
+                        }`}
+                      >
+                        <p className="font-semibold">
+                          {formatTime(slot.startTime)}
+                        </p>
+                        <p className={isSelected ? 'text-white/85' : 'text-slate-500'}>
+                          {slot.endTime && `to ${formatTime(slot.endTime)}`}
+                        </p>
+                        <p
+                          className={`mt-2 text-base font-semibold ${
+                            isSelected ? 'text-white' : 'text-emerald-600'
+                          }`}
+                        >
+                          Rs {slot.price}
+                        </p>
+                      </button>
                     );
                   })}
                 </div>
@@ -616,40 +658,51 @@ Please confirm this booking. Thank you!
             )}
 
             {selectedDate && availableSlots.length === 0 && (
-              <div className="bg-white rounded-xl shadow-lg p-6 border border-emerald-100 text-sm text-gray-700">
-                <h2 className="text-xl font-bold text-gray-900 mb-2">No Slots Available</h2>
-                <p>{noSlotsReason || 'No time slots could be generated for this date.'}</p>
+              <div className="rounded-3xl bg-white text-slate-900 p-6 shadow-2xl shadow-emerald-500/10 border border-slate-100 text-sm">
+                <div className="flex items-center gap-3">
+                  <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-amber-100 text-amber-600 font-semibold">!</span>
+                  <div>
+                    <h2 className="text-lg font-semibold">No slots open for this date</h2>
+                    <p className="text-slate-500">{noSlotsReason || 'Try another day or reach out on WhatsApp for assistance.'}</p>
+                  </div>
+                </div>
               </div>
             )}
 
             {selectedBranch && (
-              <div className="bg-white rounded-xl shadow-lg p-6 border border-emerald-100">
-                <h2 className="text-xl font-bold text-gray-900 mb-4">Payment Details</h2>
-                <div className="text-sm text-gray-700 space-y-1">
+              <div className="rounded-3xl bg-white text-slate-900 p-6 shadow-2xl shadow-emerald-500/10 border border-slate-100">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-[11px] uppercase tracking-[0.3em] text-slate-400">Payments</p>
+                    <h2 className="text-xl font-semibold">Payment coordinates</h2>
+                  </div>
+                  <span className="text-xs text-emerald-600">Share proof after paying</span>
+                </div>
+                <div className="mt-4 text-sm text-slate-700 space-y-1">
                   {selectedBranch.paymentBankName && (
                     <p>
-                      <span className="font-semibold">Bank:</span> {selectedBranch.paymentBankName}
+                      <span className="font-semibold text-slate-900">Bank:</span> {selectedBranch.paymentBankName}
                     </p>
                   )}
                   {selectedBranch.paymentAccountTitle && (
                     <p>
-                      <span className="font-semibold">Account Name:</span> {selectedBranch.paymentAccountTitle}
+                      <span className="font-semibold text-slate-900">Account Name:</span> {selectedBranch.paymentAccountTitle}
                     </p>
                   )}
                   {selectedBranch.paymentAccountNumber && (
                     <p>
-                      <span className="font-semibold">Account No.:</span> {selectedBranch.paymentAccountNumber}
+                      <span className="font-semibold text-slate-900">Account No.:</span> {selectedBranch.paymentAccountNumber}
                     </p>
                   )}
                   {selectedBranch.paymentIban && (
                     <p className="break-all">
-                      <span className="font-semibold">IBAN:</span> {selectedBranch.paymentIban}
+                      <span className="font-semibold text-slate-900">IBAN:</span> {selectedBranch.paymentIban}
                     </p>
                   )}
                   {selectedBranch.paymentOtherMethods && (
-                    <div className="pt-2 border-t border-gray-200 mt-2">
-                      <p className="font-semibold mb-1">Other Methods:</p>
-                      <pre className="whitespace-pre-wrap text-sm text-gray-700">
+                    <div className="pt-3 border-t border-slate-100 mt-3">
+                      <p className="font-semibold mb-1 text-slate-900">Other Methods</p>
+                      <pre className="whitespace-pre-wrap text-sm text-slate-600">
 {selectedBranch.paymentOtherMethods}
                       </pre>
                     </div>
@@ -659,7 +712,7 @@ Please confirm this booking. Thank you!
                     !selectedBranch.paymentIban &&
                     !selectedBranch.paymentAccountTitle &&
                     !selectedBranch.paymentOtherMethods && (
-                      <p className="text-gray-500 text-sm">
+                      <p className="text-slate-500 text-sm">
                         Payment details will be shared by the arena.
                       </p>
                     )}
@@ -668,11 +721,19 @@ Please confirm this booking. Thank you!
             )}
 
             {selectedSlots.length > 0 && (
-              <div className="bg-white rounded-xl shadow-lg p-6 border border-emerald-100">
-                <h2 className="text-xl font-bold text-gray-900 mb-4">5. Your Details</h2>
-                <div className="space-y-4">
+              <div className="rounded-3xl bg-white text-slate-900 p-6 shadow-2xl shadow-emerald-500/15 border border-slate-100">
+                <div className="flex items-center justify-between">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <p className="text-[11px] uppercase tracking-[0.3em] text-slate-400">Step 5</p>
+                    <h2 className="text-xl font-semibold">5. Your details</h2>
+                  </div>
+                  <span className="text-xs text-emerald-600">
+                    We use this to confirm on WhatsApp
+                  </span>
+                </div>
+                <div className="mt-6 space-y-5">
+                  <div>
+                    <label className="block text-sm font-medium text-slate-600 mb-1">
                       Full Name *
                     </label>
                     <input
@@ -685,13 +746,13 @@ Please confirm this booking. Thank you!
                           customerName: e.target.value,
                         })
                       }
-                      className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-gray-900 bg-white"
+                      className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-base focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200"
                       placeholder="Enter your name"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-slate-600 mb-1">
                       Phone Number *
                     </label>
                     <input
@@ -710,13 +771,14 @@ Please confirm this booking. Thank you!
                           customerPhone: formatPakPhone(e.target.value),
                         })
                       }
-                      className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-gray-900 bg-white"
+                      className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-base focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200"
                       placeholder="03xxxxxxxxx"
                     />
+                    <p className="mt-1 text-xs text-slate-500">We will text this number if anything changes.</p>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-slate-600 mb-1">
                       Payment Reference / Transaction ID
                     </label>
                     <input
@@ -728,21 +790,27 @@ Please confirm this booking. Thank you!
                           paymentReferenceId: e.target.value,
                         })
                       }
-                      className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-gray-900 bg-white"
+                      className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-base focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200"
                       placeholder="e.g. bank transfer ID"
                     />
+                    <p className="mt-1 text-xs text-slate-500">
+                      Optional but helps us verify payments faster.
+                    </p>
                   </div>
 
-                  <div className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-lg p-4 border border-emerald-200">
-                    <h3 className="font-semibold text-emerald-900 mb-2">Booking Summary</h3>
-                    <div className="space-y-2 text-sm text-gray-700">
+                  <div className="rounded-2xl border border-emerald-100 bg-gradient-to-br from-emerald-50 to-teal-50 p-4">
+                    <div className="flex items-center justify-between">
+                      <h3 className="font-semibold text-emerald-900">Booking Summary</h3>
+                      <span className="text-xs text-emerald-700 uppercase tracking-wide">auto update</span>
+                    </div>
+                    <div className="mt-3 space-y-2 text-sm text-slate-700">
                       <p>
                         <span className="font-medium">Date:</span>{' '}
                         {new Date(selectedDate).toLocaleDateString()}
                       </p>
                       <div>
                         <span className="font-medium">Slots:</span>
-                        <ul className="mt-1 space-y-1 list-disc list-inside">
+                        <ul className="mt-1 space-y-1 text-slate-700">
                           {selectedSlots.map((slot) => (
                             <li key={slot.startTime + slot.endTime}>
                               {formatTime(slot.startTime)} - {formatTime(slot.endTime)}{' '}
@@ -761,7 +829,7 @@ Please confirm this booking. Thank you!
                           .replace('.0', '')}{' '}
                         hour(s)
                       </p>
-                      <p className="text-lg font-bold text-emerald-700 mt-2">
+                      <p className="text-lg font-semibold text-emerald-700 mt-2">
                         Total: Rs{' '}
                         {selectedSlots.reduce(
                           (sum, slot) => sum + (slot.price || 0),
@@ -779,17 +847,16 @@ Please confirm this booking. Thank you!
                       selectedSlots.length > 0 &&
                       !!bookingForm.customerName &&
                       !!bookingForm.customerPhone &&
-                      bookingForm.customerPhone.replace(/\D/g, '').length >= 10 &&
-                      !!bookingForm.paymentReferenceId;
+                      bookingForm.customerPhone.replace(/\D/g, '').length >= 10;
 
                     return (
                       <button
                         onClick={handleBooking}
                         disabled={!isBookingReady}
-                        className={`w-full py-4 rounded-lg font-bold text-lg flex items-center justify-center gap-2 shadow-lg transition-colors ${
+                        className={`w-full rounded-2xl py-4 font-semibold text-lg flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/30 transition-all ${
                           isBookingReady
-                            ? 'bg-green-600 text-white hover:bg-green-700'
-                            : 'bg-gray-300 text-gray-500 cursor-not-allowed shadow-none'
+                            ? 'bg-emerald-500 text-white hover:bg-emerald-600'
+                            : 'bg-slate-200 text-slate-500 cursor-not-allowed shadow-none'
                         }`}
                       >
                         <svg
@@ -799,12 +866,12 @@ Please confirm this booking. Thank you!
                         >
                           <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
                         </svg>
-                        Send Booking via WhatsApp
+                        Send booking via WhatsApp
                       </button>
                     );
                   })()}
 
-                  <p className="text-xs text-center text-gray-500">
+                  <p className="text-xs text-center text-slate-500">
                     You will be redirected to WhatsApp to confirm your booking
                   </p>
                 </div>
@@ -848,8 +915,7 @@ Please confirm this booking. Thank you!
                 selectedSlots.length > 0 &&
                 !!bookingForm.customerName &&
                 !!bookingForm.customerPhone &&
-                bookingForm.customerPhone.replace(/\D/g, '').length >= 10 &&
-                !!bookingForm.paymentReferenceId;
+                bookingForm.customerPhone.replace(/\D/g, '').length >= 10;
 
               return (
                 <button
@@ -865,6 +931,33 @@ Please confirm this booking. Thank you!
                 </button>
               );
             })()}
+          </div>
+        </div>
+      )}
+
+      {isRedirectModalOpen && (
+        <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/40 px-4 backdrop-blur-sm">
+          <div className="w-full max-w-md rounded-3xl bg-white p-6 text-center shadow-2xl">
+            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-emerald-600">Heads up</p>
+            <h3 className="mt-3 text-2xl font-bold text-gray-900">Share your payment proof</h3>
+            <p className="mt-3 text-sm text-gray-600">
+              Kindly send the transaction screenshot on WhatsApp so our team can verify and lock your slot.
+            </p>
+            <p className="mt-4 text-lg font-semibold text-emerald-700">
+              Redirecting in {redirectCountdown}...
+            </p>
+            <div className="mt-4 h-1 w-full rounded-full bg-emerald-100">
+              <div
+                className="h-full rounded-full bg-emerald-600 transition-[width] duration-1000 ease-linear"
+                style={{ width: `${(redirectCountdown / TOTAL_REDIRECT_SECONDS) * 100}%` }}
+              />
+            </div>
+            <button
+              onClick={handleManualRedirect}
+              className="mt-6 w-full rounded-2xl bg-emerald-500 py-3 text-white font-semibold shadow-lg shadow-emerald-600/30 hover:bg-emerald-600 transition-colors"
+            >
+              Open WhatsApp now
+            </button>
           </div>
         </div>
       )}

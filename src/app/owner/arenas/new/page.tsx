@@ -8,6 +8,7 @@ import Toast from '@/components/Toast';
 type ArenaForm = {
   name: string;
   description: string;
+  country: string;
 };
 
 type ToastState = {
@@ -20,6 +21,7 @@ export default function NewArenaPage() {
   const [formData, setFormData] = useState<ArenaForm>({
     name: '',
     description: '',
+    country: '',
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -102,6 +104,7 @@ export default function NewArenaPage() {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
+
             <div>
               <label className="mb-2 block text-sm font-semibold text-gray-800">
                 Arena Name *
@@ -118,6 +121,30 @@ export default function NewArenaPage() {
               />
               <p className="mt-1 text-xs text-gray-500">
                 Your main arena / brand name — can have multiple locations.
+              </p>
+            </div>
+
+            <div>
+              <label className="mb-2 block text-sm font-semibold text-gray-800">
+                Country *
+              </label>
+              <select
+                required
+                value={formData.country}
+                onChange={(e) => setFormData({ ...formData, country: e.target.value })}
+                className="w-full rounded-lg border-2 border-gray-200 bg-white px-4 py-3 text-gray-900 transition-colors focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500"
+              >
+                <option value="" disabled>
+                  Select country
+                </option>
+                <option value="Indonesia">Indonesia</option>
+                <option value="Malaysia">Malaysia</option>
+                <option value="Pakistan">Pakistan</option>
+                <option value="USA">USA</option>
+                {/* Add more countries as needed */}
+              </select>
+              <p className="mt-1 text-xs text-gray-500">
+                The country where your arena brand is based.
               </p>
             </div>
 

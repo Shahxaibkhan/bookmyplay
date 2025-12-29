@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { paymentFieldsByCountry } from '@/lib/paymentFieldsByCountry';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Toast from '@/components/Toast';
@@ -25,6 +26,7 @@ type BranchForm = {
 type BranchApiResponse = {
   branch: Partial<BranchForm> & {
     paymentOtherMethods?: string;
+    arenaId?: string;
   };
 };
 
@@ -40,6 +42,8 @@ export default function EditBranchPage() {
   const [submitting, setSubmitting] = useState(false);
   const [toast, setToast] = useState<ToastState>(null);
 
+  const [arenaCountry, setArenaCountry] = useState<string>('Pakistan');
+  const paymentConfig = paymentFieldsByCountry[arenaCountry] || paymentFieldsByCountry['Other'];
   const [formData, setFormData] = useState<BranchForm>({
     name: '',
     address: '',
@@ -72,6 +76,16 @@ export default function EditBranchPage() {
               paymentAccountTitle: data.branch.paymentAccountTitle ?? '',
               paymentOtherMethods: data.branch.paymentOtherMethods ?? '',
             });
+            // Fetch arena country
+            if (data.branch.arenaId) {
+              try {
+                const arenaRes = await fetch(`/api/arenas/${data.branch.arenaId}`);
+                if (arenaRes.ok) {
+                  const arenaData = await arenaRes.json();
+                  setArenaCountry(arenaData.arena?.country || 'Pakistan');
+                }
+              } catch {}
+            }
           }
         }
       } catch (error) {
@@ -81,7 +95,6 @@ export default function EditBranchPage() {
         setLoading(false);
       }
     };
-
     fetchBranch();
   }, [branchId]);
 
@@ -174,7 +187,7 @@ export default function EditBranchPage() {
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-gray-900 placeholder-gray-400"
-                placeholder="Main Branch, Downtown, etc."
+                placeholder={paymentConfig.branchNamePlaceholder}
               />
             </div>
 
@@ -187,8 +200,8 @@ export default function EditBranchPage() {
                 required
                 value={formData.whatsappNumber}
                 onChange={(e) => setFormData({ ...formData, whatsappNumber: e.target.value })}
-                className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-gray-900 placeholder-gray-400"
-                placeholder="+92300xxxxxxx"
+                className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus-border-emerald-500 text-gray-900 placeholder-gray-400"
+                placeholder={paymentConfig.whatsappPlaceholder}
               />
             </div>
 
@@ -245,7 +258,7 @@ export default function EditBranchPage() {
                 value={formData.paymentBankName}
                 onChange={(e) => setFormData({ ...formData, paymentBankName: e.target.value })}
                 className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus-border-emerald-500 text-gray-900 placeholder-gray-400"
-                placeholder="Meezan Bank, HBL, etc."
+                placeholder={paymentConfig.bankPlaceholder}
               />
             </div>
 
@@ -258,7 +271,7 @@ export default function EditBranchPage() {
                 value={formData.paymentAccountNumber}
                 onChange={(e) => setFormData({ ...formData, paymentAccountNumber: e.target.value })}
                 className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus-border-emerald-500 text-gray-900 placeholder-gray-400"
-                placeholder="e.g. 0355XXXXXXXXXX"
+                placeholder={paymentConfig.accountNumberPlaceholder}
               />
             </div>
 
@@ -271,7 +284,7 @@ export default function EditBranchPage() {
                 value={formData.paymentIban}
                 onChange={(e) => setFormData({ ...formData, paymentIban: e.target.value })}
                 className="w-full rounded-lg border-2 border-gray-200 px-4 py-3 text-gray-900 placeholder-gray-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500"
-                placeholder="PKxxMEZN0xxxxxxxxxxxxxx"
+                placeholder={paymentConfig.ibanPlaceholder}
               />
             </div>
 
@@ -284,19 +297,19 @@ export default function EditBranchPage() {
                 value={formData.paymentAccountTitle}
                 onChange={(e) => setFormData({ ...formData, paymentAccountTitle: e.target.value })}
                 className="w-full rounded-lg border-2 border-gray-200 px-4 py-3 text-gray-900 placeholder-gray-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500"
-                placeholder="Galaxy Sports"
+                placeholder={paymentConfig.accountTitlePlaceholder}
               />
             </div>
 
             <div className="md:col-span-2">
               <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Other Payment Methods (JazzCash / Easypaisa / etc.)
+                {paymentConfig.otherMethodsLabel}
               </label>
               <textarea
                 value={formData.paymentOtherMethods}
                 onChange={(e) => setFormData({ ...formData, paymentOtherMethods: e.target.value })}
                 className="min-h-[80px] w-full rounded-lg border-2 border-gray-200 px-4 py-3 text-gray-900 placeholder-gray-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500"
-                placeholder="JazzCash: 03xx xxxxxxx (Name)\nEasypaisa: 03xx xxxxxxx (Name)"
+                placeholder={paymentConfig.otherMethodsPlaceholder}
               />
             </div>
           </div>

@@ -8,6 +8,7 @@ export interface IBranch {
   googleMapLink: string;
   city: string;
   area: string;
+  country: string; // Added for international support
   whatsappNumber: string;
   paymentBankName?: string;
   paymentAccountNumber?: string;
@@ -89,6 +90,7 @@ const BranchSchema = new Schema<IBranch>(
     timestamps: true,
   }
 );
+    // country removed; now inherited from Arena
 
 BranchSchema.index({ arenaId: 1 });
 

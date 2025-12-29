@@ -40,13 +40,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { name, description } =
-      await request.json();
+    const { name, description, country } = await request.json();
 
-    if (
-      !name ||
-      !description
-    ) {
+    if (!name || !description || !country) {
       return NextResponse.json(
         { error: 'All fields are required' },
         { status: 400 }
@@ -69,6 +65,7 @@ export async function POST(request: NextRequest) {
       name,
       slug,
       description,
+      country,
       isActive: true,
     });
 

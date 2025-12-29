@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import Toast from '@/components/Toast';
+import { formatPrice } from '@/lib/utils';
 
 type BranchPaymentInfo = {
   paymentBankName?: string;
@@ -17,6 +18,7 @@ type PublicBranch = BranchPaymentInfo & {
   name: string;
   city: string;
   area: string;
+  country?: string; // For international support
   whatsappNumber: string;
 };
 
@@ -46,6 +48,7 @@ type PublicCourt = {
   sportType: string;
   slotDuration: number;
   basePrice: number;
+  currency?: 'USD' | 'IDR' | 'MYR' | 'PKR';
   schedule?: CourtSchedule[];
   dayPrices?: DayPrice[];
   timePrices?: TimePrice[];
@@ -55,6 +58,7 @@ type PublicArena = {
   _id: string;
   name: string;
   description?: string;
+  country?: string;
 };
 
 type PublicArenaPayload = {
@@ -312,7 +316,7 @@ export default function PublicBookingPage() {
     const slotsText = selectedSlots
       .map(
         (slot) =>
-          `- ${formatTime(slot.startTime)} to ${formatTime(slot.endTime)} (Rs ${slot.price})`
+          `- ${formatTime(slot.startTime)} to ${formatTime(slot.endTime)} (${formatPrice(slot.price, selectedCourt?.currency || 'USD')})`
       )
       .join('\n');
 
@@ -355,29 +359,29 @@ export default function PublicBookingPage() {
 
     const message = `New Booking Request
 
-Arena: ${data.arena.name}
-Branch: ${selectedBranch.name}
-Court: ${selectedCourt.name}
+  Arena: ${data.arena.name}
+  Branch: ${selectedBranch.name}
+  Court: ${selectedCourt.name}
 
-Customer Details:
-Name: ${bookingForm.customerName}
-Phone: ${bookingForm.customerPhone}
+  Customer Details:
+  Name: ${bookingForm.customerName}
+  Phone: ${bookingForm.customerPhone}
 
-Booking Details:
-Sport: ${selectedCourt.sportType}
-Date: ${new Date(selectedDate).toLocaleDateString('en-US', {
+  Booking Details:
+  Sport: ${selectedCourt.sportType}
+  Date: ${new Date(selectedDate).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'long',
       day: 'numeric',
     })}
-Slots:\n${slotsText}
-Total Duration: ${totalHours} hour(s)
+  Slots:\n${slotsText}
+  Total Duration: ${totalHours} hour(s)
 
-Payment:
-Total Amount: Rs ${totalAmount}
-${bookingForm.paymentReferenceId ? `Reference: ${bookingForm.paymentReferenceId}` : ''}
+  Payment:
+  Total Amount: ${formatPrice(totalAmount, selectedCourt?.currency || 'USD')}
+  ${bookingForm.paymentReferenceId ? `Reference: ${bookingForm.paymentReferenceId}` : ''}
 
-Please confirm this booking. Thank you!
+  Please confirm this booking. Thank you!
     `.trim();
 
     const whatsappNumber = selectedBranch.whatsappNumber.replace(/[^0-9]/g, '');
@@ -533,7 +537,15 @@ Please confirm this booking. Thank you!
                     const courtsForBranch = data.courts.filter(
                       (court) => court.branchId === selectedBranch._id
                     );
-                    const court = courtsForBranch.find((c) => c._id === e.target.value) || null;
+                    let court = courtsForBranch.find((c) => c._id === e.target.value) || null;
+                    // Set currency based on arena country
+                    if (court && data.arena && data.arena.country) {
+                      let currency: 'USD' | 'IDR' | 'MYR' | 'PKR' = 'USD';
+                      if (data.arena.country === 'Pakistan') currency = 'PKR';
+                      else if (data.arena.country === 'Indonesia') currency = 'IDR';
+                      else if (data.arena.country === 'Malaysia') currency = 'MYR';
+                      court = { ...court, currency };
+                    }
                     setSelectedCourt(court);
                     setSelectedDate('');
                     setSelectedSlots([]);
@@ -626,7 +638,7 @@ Please confirm this booking. Thank you!
                             isSelected ? 'text-white' : 'text-emerald-600'
                           }`}
                         >
-                          Rs {slot.price}
+                          {formatPrice(slot.price, selectedCourt?.currency || 'USD')}
                         </p>
                       </button>
                     );
@@ -792,7 +804,7 @@ Please confirm this booking. Thank you!
                           {selectedSlots.map((slot) => (
                             <li key={slot.startTime + slot.endTime}>
                               {formatTime(slot.startTime)} - {formatTime(slot.endTime)}{' '}
-                              (Rs {slot.price})
+                              ({formatPrice(slot.price, selectedCourt?.currency || 'USD')})
                             </li>
                           ))}
                         </ul>
@@ -808,11 +820,10 @@ Please confirm this booking. Thank you!
                         hour(s)
                       </p>
                       <p className="text-lg font-semibold text-emerald-700 mt-2">
-                        Total: Rs{' '}
-                        {selectedSlots.reduce(
+                        Total: {formatPrice(selectedSlots.reduce(
                           (sum, slot) => sum + (slot.price || 0),
                           0
-                        )}
+                        ), selectedCourt?.currency || 'USD')}
                       </p>
                     </div>
                   </div>

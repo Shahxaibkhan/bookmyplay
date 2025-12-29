@@ -1,6 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { citiesByCountry } from '@/lib/cities';
+import { paymentFieldsByCountry } from '@/lib/paymentFieldsByCountry';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Toast from '@/components/Toast';
@@ -25,35 +27,7 @@ type BranchForm = {
 
 type ToastState = { message: string; type: 'success' | 'error' } | null;
 
-const pakistanCities = [
-  'Karachi',
-  'Lahore',
-  'Islamabad',
-  'Rawalpindi',
-  'Faisalabad',
-  'Multan',
-  'Peshawar',
-  'Quetta',
-  'Sialkot',
-  'Gujranwala',
-  'Hyderabad',
-  'Bahawalpur',
-  'Sargodha',
-  'Sukkur',
-  'Larkana',
-  'Sheikhupura',
-  'Jhang',
-  'Rahim Yar Khan',
-  'Gujrat',
-  'Mardan',
-  'Kasur',
-  'Dera Ghazi Khan',
-  'Sahiwal',
-  'Nawabshah',
-  'Mingora',
-  'Okara',
-  'Other',
-];
+
 
 export default function NewBranchPage() {
   const params = useParams();
@@ -75,6 +49,21 @@ export default function NewBranchPage() {
   });
 
   const [showOtherCity, setShowOtherCity] = useState(false);
+  const [arenaCountry, setArenaCountry] = useState<string>('Pakistan');
+  const paymentConfig = paymentFieldsByCountry[arenaCountry] || paymentFieldsByCountry['Other'];
+    // Fetch arena country on mount
+    useEffect(() => {
+      async function fetchArena() {
+        try {
+          const res = await fetch(`/api/arenas/${arenaId}`);
+          if (res.ok) {
+            const data = await res.json();
+            setArenaCountry(data.arena?.country || 'Pakistan');
+          }
+        } catch {}
+      }
+      fetchArena();
+    }, [arenaId]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [toast, setToast] = useState<ToastState>(null);
@@ -167,7 +156,7 @@ export default function NewBranchPage() {
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 className="w-full rounded-lg border border-gray-200 px-4 py-3 text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-                placeholder="e.g., Main Branch, DHA Branch"
+                placeholder={paymentConfig.branchNamePlaceholder}
               />
             </div>
 
@@ -205,7 +194,7 @@ export default function NewBranchPage() {
                   className="w-full rounded-lg border border-gray-200 px-4 py-3 text-gray-900 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
                 >
                   <option value="">Select City</option>
-                  {pakistanCities.map((city) => (
+                  {(citiesByCountry[arenaCountry] || citiesByCountry['Other']).map((city) => (
                     <option key={city} value={city}>
                       {city}
                     </option>
@@ -263,7 +252,7 @@ export default function NewBranchPage() {
                   setFormData({ ...formData, whatsappNumber: e.target.value })
                 }
                 className="w-full rounded-lg border border-gray-200 px-4 py-3 text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-                placeholder="03xxxxxxxxx"
+                placeholder={paymentConfig.whatsappPlaceholder}
               />
               <p className="mt-1 text-sm text-gray-500">
                 Booking confirmations will be sent to this WhatsApp number
@@ -282,7 +271,7 @@ export default function NewBranchPage() {
                     setFormData({ ...formData, paymentBankName: e.target.value })
                   }
                   className="w-full rounded-lg border border-gray-200 px-4 py-3 text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-                  placeholder="Meezan Bank, HBL, etc."
+                  placeholder={paymentConfig.bankPlaceholder}
                 />
               </div>
 
@@ -297,7 +286,7 @@ export default function NewBranchPage() {
                     setFormData({ ...formData, paymentAccountNumber: e.target.value })
                   }
                   className="w-full rounded-lg border border-gray-200 px-4 py-3 text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-                  placeholder="e.g. 0355XXXXXXXXXX"
+                  placeholder={paymentConfig.accountNumberPlaceholder}
                 />
               </div>
 
@@ -312,7 +301,7 @@ export default function NewBranchPage() {
                     setFormData({ ...formData, paymentIban: e.target.value })
                   }
                   className="w-full rounded-lg border border-gray-200 px-4 py-3 text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-                  placeholder="PKxxMEZN0xxxxxxxxxxxxxx"
+                  placeholder={paymentConfig.ibanPlaceholder}
                 />
               </div>
 
@@ -327,13 +316,13 @@ export default function NewBranchPage() {
                     setFormData({ ...formData, paymentAccountTitle: e.target.value })
                   }
                   className="w-full rounded-lg border border-gray-200 px-4 py-3 text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-                  placeholder="Galaxy Sports"
+                  placeholder={paymentConfig.accountTitlePlaceholder}
                 />
               </div>
 
               <div className="md:col-span-2">
                 <label className="mb-2 block text-sm font-medium text-gray-700">
-                  Other Payment Methods (JazzCash / Easypaisa / etc.)
+                  {paymentConfig.otherMethodsLabel}
                 </label>
                 <textarea
                   value={formData.paymentOtherMethods}
@@ -341,9 +330,7 @@ export default function NewBranchPage() {
                     setFormData({ ...formData, paymentOtherMethods: e.target.value })
                   }
                   className="min-h-[80px] w-full rounded-lg border border-gray-200 px-4 py-3 text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-                  placeholder={
-                    'JazzCash: 03xx xxxxxxx (Name)\nEasypaisa: 03xx xxxxxxx (Name)'
-                  }
+                  placeholder={paymentConfig.otherMethodsPlaceholder}
                 />
               </div>
             </div>

@@ -13,6 +13,7 @@ export interface IBooking {
   endTime: string;
   duration: number;
   price: number;
+  currency: string; // Added for multi-currency support
   paymentScreenshotURL?: string;
   paymentReferenceId?: string;
   referenceCode: string;
@@ -74,6 +75,11 @@ const BookingSchema = new Schema<IBooking>(
       type: Number,
       required: [true, 'Price is required'],
       min: 0,
+    },
+    currency: {
+      type: String,
+      enum: ['USD', 'IDR', 'MYR', 'PKR'],
+      default: 'PKR',
     },
     paymentScreenshotURL: {
       type: String,

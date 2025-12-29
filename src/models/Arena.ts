@@ -7,6 +7,7 @@ export interface IArena {
   slug: string;
   description: string;
   logo?: string;
+  country: string; // Added for international support
   isApproved: boolean;
   isActive: boolean;
   createdAt: Date;
@@ -37,6 +38,12 @@ const ArenaSchema = new Schema<IArena>(
     },
     logo: {
       type: String,
+    },
+    country: {
+      type: String,
+      required: [true, 'Country is required'],
+      enum: ['Pakistan', 'Indonesia', 'Malaysia', 'Other'],
+      default: 'Pakistan',
     },
     isActive: {
       type: Boolean,

@@ -30,7 +30,7 @@ const productScreens = [
   },
   {
     title: "Collections & payouts",
-    metric: "PKR 4.3M ready to settle",
+    metric: "USD 4.3M ready to settle",
     description: "Automated payout batches with ledger notes and WhatsApp notifications.",
     highlights: ["Auto-split across 3 branches", "UPI + Cards + Cash", "Next run 7:00 PM"],
   },

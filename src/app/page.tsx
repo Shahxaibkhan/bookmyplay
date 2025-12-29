@@ -131,8 +131,8 @@ export default function Home() {
           <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-emerald-200/60 to-lime-200/70 blur-2xl" aria-hidden="true" />
           <div className="relative rounded-3xl border border-white/70 bg-white/90 p-6 sm:p-8 shadow-2xl shadow-emerald-500/10">
             <p className="text-sm font-semibold text-emerald-700">Live snapshot</p>
-            <p className="text-3xl font-bold text-gray-900 mt-2">PKR 12.5M revenue</p>
-            <p className="text-sm text-gray-500">Past 30 days • +18% vs last month</p>
+            <p className="text-3xl font-bold text-gray-900 mt-2">USD 185k revenue</p>
+            <p className="text-sm text-gray-500">Past 30 days • +7% vs last month</p>
             <div className="mt-6 grid gap-4 md:grid-cols-3">
               <div className="rounded-2xl border border-emerald-100 bg-emerald-50/70 p-4">
                 <p className="text-xs uppercase tracking-wider text-emerald-600">Branches tracked</p>

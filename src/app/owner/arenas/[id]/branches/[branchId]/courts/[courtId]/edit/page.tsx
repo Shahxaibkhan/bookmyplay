@@ -1,6 +1,12 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+const currencyByCountry: Record<string, string> = {
+  Pakistan: 'PKR',
+  Indonesia: 'IDR',
+  Malaysia: 'MYR',
+  Other: 'USD',
+};
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Toast from '@/components/Toast';
@@ -102,6 +108,8 @@ export default function EditCourtPage() {
   const branchId = params.branchId as string;
   const courtId = params.courtId as string;
 
+  const [arenaCountry, setArenaCountry] = useState<string>('Pakistan'); // eslint-disable-line @typescript-eslint/no-unused-vars
+  const [currency, setCurrency] = useState<string>('PKR');
   const [formData, setFormData] = useState<CourtFormState>({
     name: '',
     sportType: '',
@@ -170,6 +178,19 @@ export default function EditCourtPage() {
           courtNotes: court.courtNotes || '',
         });
 
+        // Fetch arena country for currency
+        if (arenaId) {
+          try {
+            const arenaRes = await fetch(`/api/arenas/${arenaId}`);
+            if (arenaRes.ok) {
+              const arenaData = await arenaRes.json();
+              const country = arenaData.arena?.country || 'Pakistan';
+              setArenaCountry(country);
+              setCurrency(currencyByCountry[country] || 'USD');
+            }
+          } catch {}
+        }
+
         if (court.schedule && court.schedule.length > 0) {
           setSchedule(
             court.schedule.map((day) => ({
@@ -208,9 +229,8 @@ export default function EditCourtPage() {
         setFetchLoading(false);
       }
     };
-
     fetchCourt();
-  }, [courtId]);
+  }, [courtId, arenaId]);
 
   const addDayPrice = () => {
     setDayPrices((prev) => [...prev, { day: '', price: '' }]);
@@ -507,9 +527,9 @@ export default function EditCourtPage() {
 
               <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
                 <div>
-                  <label className="mb-2 block text-sm font-semibold text-gray-800">Base Price (Rs.) *</label>
+                  <label className="mb-2 block text-sm font-semibold text-gray-800">Base Price ({currency}) *</label>
                   <div className="relative">
-                    <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">Rs.</span>
+                    <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">{currency}</span>
                     <input
                       type="number"
                       required

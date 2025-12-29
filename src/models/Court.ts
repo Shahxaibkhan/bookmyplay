@@ -36,6 +36,7 @@ export interface ICourt {
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
+  currency: string; // Added for multi-currency support
 }
 
 const CourtSchema = new Schema<ICourt>(
@@ -127,6 +128,7 @@ const CourtSchema = new Schema<ICourt>(
     timestamps: true,
   }
 );
+    // currency removed; set at runtime based on Arena country
 
 CourtSchema.index({ branchId: 1 });
 CourtSchema.index({ arenaId: 1 });

@@ -16,10 +16,14 @@ export function generateReferenceCode(): string {
   return Math.random().toString(36).substring(2, 8).toUpperCase();
 }
 
-export function formatPrice(price: number): string {
-  return new Intl.NumberFormat('en-PK', {
+export function formatPrice(price: number, currency: 'USD' | 'IDR' | 'MYR' | 'PKR' = 'USD'): string {
+  let locale = 'en-US';
+  if (currency === 'PKR') locale = 'en-PK';
+  if (currency === 'IDR') locale = 'id-ID';
+  if (currency === 'MYR') locale = 'ms-MY';
+  return new Intl.NumberFormat(locale, {
     style: 'currency',
-    currency: 'PKR',
+    currency,
     minimumFractionDigits: 0,
   }).format(price);
 }

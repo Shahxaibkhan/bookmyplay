@@ -1,12 +1,19 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
+const currencyByCountry: Record<string, string> = {
+  Pakistan: 'PKR',
+  Indonesia: 'IDR',
+  Malaysia: 'MYR',
+  Other: 'USD',
+};
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import Toast from '@/components/Toast';
 
 type Branch = {
   _id: string;
+  arenaId?: string;
   name: string;
   address: string;
   city: string;
@@ -43,6 +50,8 @@ export default function BranchDetailPage() {
   const branchId = params.branchId as string;
 
   const [branch, setBranch] = useState<Branch | null>(null);
+  const [arenaCountry, setArenaCountry] = useState<string>('Pakistan'); // eslint-disable-line @typescript-eslint/no-unused-vars
+  const [currency, setCurrency] = useState<string>('PKR');
   const [courts, setCourts] = useState<Court[]>([]);
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState<ToastState>(null);
@@ -58,6 +67,18 @@ export default function BranchDetailPage() {
       if (branchRes.ok) {
         const branchData = (await branchRes.json().catch(() => null)) as BranchResponse | null;
         setBranch(branchData?.branch ?? null);
+        // Fetch arena country for currency
+        if (branchData?.branch?.arenaId) {
+          try {
+            const arenaRes = await fetch(`/api/arenas/${branchData.branch.arenaId}`);
+            if (arenaRes.ok) {
+              const arenaData = await arenaRes.json();
+              const country = arenaData.arena?.country || 'Pakistan';
+              setArenaCountry(country);
+              setCurrency(currencyByCountry[country] || 'USD');
+            }
+          } catch {}
+        }
       } else {
         setBranch(null);
       }
@@ -374,7 +395,7 @@ export default function BranchDetailPage() {
 
                     <div className="flex items-baseline gap-1">
                       <span className="text-lg font-semibold text-emerald-600">
-                        Rs. {court.basePrice}
+                        {currency} {court.basePrice}
                       </span>
                       <span className="text-xs text-slate-500">/ slot</span>
                     </div>

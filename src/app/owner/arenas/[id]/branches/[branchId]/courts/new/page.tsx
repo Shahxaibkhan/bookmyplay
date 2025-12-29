@@ -1,6 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+// import { citiesByCountry } from '@/lib/cities';
+const currencyByCountry: Record<string, string> = {
+  Pakistan: 'PKR',
+  Indonesia: 'IDR',
+  Malaysia: 'MYR',
+  Other: 'USD',
+};
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Toast from '@/components/Toast';
@@ -75,6 +82,23 @@ export default function NewCourtPage() {
   const router = useRouter();
   const arenaId = params.id as string;
   const branchId = params.branchId as string;
+
+  const [arenaCountry, setArenaCountry] = useState<string>('Pakistan'); // eslint-disable-line @typescript-eslint/no-unused-vars
+  const [currency, setCurrency] = useState<string>('PKR');
+  useEffect(() => {
+    async function fetchArena() {
+      try {
+        const res = await fetch(`/api/arenas/${arenaId}`);
+        if (res.ok) {
+          const data = await res.json();
+          const country = data.arena?.country || 'Pakistan';
+          setArenaCountry(country);
+          setCurrency(currencyByCountry[country] || 'USD');
+        }
+      } catch {}
+    }
+    fetchArena();
+  }, [arenaId]);
 
   const [formData, setFormData] = useState<CourtFormState>({
     name: '',
@@ -440,11 +464,11 @@ export default function NewCourtPage() {
               <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
                 <div>
                   <label className="mb-2 block text-sm font-semibold text-gray-800">
-                    Base Price (Rs.) *
+                    Base Price ({currency}) *
                   </label>
                   <div className="relative">
                     <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">
-                      Rs.
+                      {currency}
                     </span>
                     <input
                       type="number"
@@ -617,11 +641,11 @@ export default function NewCourtPage() {
                               </div>
                               <div>
                                 <label className="mb-1 block text-xs font-semibold text-gray-700">
-                                  Price (Rs.)
+                                  Price ({currency})
                                 </label>
                                 <input
                                   type="number"
-                                  placeholder="e.g., 1500"
+                                  placeholder={`e.g., 1500`}
                                   value={dp.price}
                                   onChange={(e) =>
                                     updateDayPrice(index, 'price', e.target.value)
@@ -717,7 +741,7 @@ export default function NewCourtPage() {
                               </div>
                               <div>
                                 <label className="mb-1 block text-xs font-semibold text-gray-700">
-                                  Price (Rs.)
+                                  Price ({currency})
                                 </label>
                                 <input
                                   type="number"
@@ -726,7 +750,7 @@ export default function NewCourtPage() {
                                     updateTimePrice(index, 'price', e.target.value)
                                   }
                                   className="w-full rounded-lg border-2 border-gray-300 bg-white px-3 py-2 text-sm text-gray-900"
-                                  placeholder="e.g., 2000"
+                                  placeholder={`e.g., 2000`}
                                 />
                               </div>
                               <div>

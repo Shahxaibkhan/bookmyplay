@@ -63,6 +63,7 @@ describe('Admin dashboard data and public booking APIs', () => {
       name: `Admin QA Arena ${suffix}`,
       slug: `admin-qa-arena-${suffix}`,
       description: 'Admin dashboard integration arena',
+      country: 'Pakistan',
       isActive: true,
     });
 
@@ -92,6 +93,7 @@ describe('Admin dashboard data and public booking APIs', () => {
       name: `Public QA Arena ${suffix}`,
       slug: `public-qa-arena-${suffix}`,
       description: 'Arena exposed to public API',
+      country: 'Pakistan',
       isActive: true,
     });
 

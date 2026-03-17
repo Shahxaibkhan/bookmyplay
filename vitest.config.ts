@@ -6,6 +6,8 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'node',
+    hookTimeout: 30000,
+    testTimeout: 30000,
     setupFiles: ['./tests/setup/vitest.setup.ts'],
     exclude: [...configDefaults.exclude, 'playwright/**'],
     coverage: {

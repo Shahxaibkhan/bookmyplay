@@ -81,6 +81,7 @@ describe('Owner lifecycle API flow', () => {
       buildRequest('/api/arenas', {
         name: `QA Arena ${uniqueSuffix}`,
         description: 'Automated test arena',
+        country: 'Pakistan',
       })
     );
 
@@ -177,6 +178,7 @@ describe('Owner lifecycle API flow', () => {
       buildRequest('/api/arenas', {
         name: 'Unauthorized Arena',
         description: 'Should not be created',
+        country: 'Pakistan',
       })
     );
 

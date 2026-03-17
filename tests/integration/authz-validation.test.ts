@@ -73,6 +73,7 @@ describe('API authorization and validation coverage', () => {
       name: `Coverage Arena A ${suffix}`,
       slug: `coverage-arena-a-${suffix}`,
       description: 'Primary arena for coverage tests',
+      country: 'Pakistan',
       isActive: true,
     });
 
@@ -81,6 +82,7 @@ describe('API authorization and validation coverage', () => {
       name: `Coverage Arena B ${suffix}`,
       slug: `coverage-arena-b-${suffix}`,
       description: 'Secondary arena for coverage tests',
+      country: 'Pakistan',
       isActive: true,
     });
 

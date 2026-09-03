@@ -168,6 +168,73 @@ const arenaSeeds: ArenaSeed[] = [
       },
     ],
   },
+  {
+    name: 'Lahore Play District',
+    description: 'A family-friendly multi-sport destination across Lahore with premium padel, cricket, and badminton facilities.',
+    branches: [
+      {
+        name: 'Play District Gulberg',
+        address: '18-C Main Boulevard, Gulberg III',
+        googleMapLink: 'https://maps.google.com/?q=Gulberg+III+Lahore',
+        city: 'Lahore',
+        area: 'Gulberg III',
+        whatsappNumber: '0305-2223344',
+        paymentBankName: 'Meezan Bank',
+        paymentAccountTitle: 'Lahore Play District',
+        paymentAccountNumber: '3322-110099-887',
+        paymentIban: 'PK22MEZN0003221100998877',
+        paymentOtherMethods: 'JazzCash: 0305-2223344 (Play District)',
+        courts: [
+          { name: 'Gulberg Padel One', sportType: 'Padel', basePrice: 4500, slotDuration: 60, maxPlayers: 4, courtNotes: 'Panoramic glass court with evening LED lighting.' },
+          { name: 'Gulberg Padel Two', sportType: 'Padel', basePrice: 4500, slotDuration: 60, maxPlayers: 4, courtNotes: 'Covered court with spectator seating.' },
+          { name: 'Indoor Cricket Bay', sportType: 'Cricket', basePrice: 2800, slotDuration: 60, maxPlayers: 12, courtNotes: 'Indoor practice bay with bowling machine.' },
+          { name: 'Badminton Hall A', sportType: 'Badminton', basePrice: 1400, slotDuration: 60, maxPlayers: 4, courtNotes: 'Two-court hall with sprung flooring.' },
+        ],
+      },
+      {
+        name: 'Play District DHA',
+        address: '19 T-Block Commercial, DHA Phase 5',
+        googleMapLink: 'https://maps.google.com/?q=DHA+Phase+5+Lahore',
+        city: 'Lahore',
+        area: 'DHA Phase 5',
+        whatsappNumber: '0315-5556677',
+        paymentBankName: 'HBL',
+        paymentAccountTitle: 'Play District DHA',
+        paymentAccountNumber: '7788-990011-223',
+        paymentIban: 'PK55HABB0007788990011223',
+        paymentOtherMethods: 'Easypaisa: 0315-5556677 (Play District DHA)',
+        courts: [
+          { name: 'DHA Futsal Arena', sportType: 'Futsal', basePrice: 6500, slotDuration: 60, maxPlayers: 14, courtNotes: 'FIFA-grade synthetic turf and changing rooms.' },
+          { name: 'DHA Cricket Ground', sportType: 'Cricket', basePrice: 3500, slotDuration: 90, maxPlayers: 18, courtNotes: 'Full-size net practice lanes.' },
+          { name: 'DHA Tennis Court', sportType: 'Tennis', basePrice: 2600, slotDuration: 60, maxPlayers: 4, courtNotes: 'All-weather hard court.' },
+        ],
+      },
+    ],
+  },
+  {
+    name: 'Rally & Turf Lahore',
+    description: 'A high-energy sports club for racket players, five-a-side football, and weekend community leagues.',
+    branches: [
+      {
+        name: 'Rally Model Town',
+        address: 'Link Road, Model Town Extension',
+        googleMapLink: 'https://maps.google.com/?q=Model+Town+Extension+Lahore',
+        city: 'Lahore',
+        area: 'Model Town Extension',
+        whatsappNumber: '0321-8889900',
+        paymentBankName: 'UBL',
+        paymentAccountTitle: 'Rally & Turf Lahore',
+        paymentAccountNumber: '4455-667788-990',
+        paymentIban: 'PK77UNIL0004455667788990',
+        paymentOtherMethods: 'JazzCash: 0321-8889900 (Rally Turf)',
+        courts: [
+          { name: 'Rally Padel Court', sportType: 'Padel', basePrice: 4000, slotDuration: 60, maxPlayers: 4, courtNotes: 'Open-air court with shaded viewing deck.' },
+          { name: 'Model Town Football Turf', sportType: 'Football', basePrice: 5500, slotDuration: 60, maxPlayers: 14, courtNotes: 'Five-a-side turf with floodlights.' },
+          { name: 'Rally Squash Court', sportType: 'Squash', basePrice: 1800, slotDuration: 45, maxPlayers: 2, courtNotes: 'Climate-controlled glass-back court.' },
+        ],
+      },
+    ],
+  },
 ];
 
 const bookingSeeds: BookingSeed[] = [
@@ -280,10 +347,18 @@ async function seed() {
         name: arenaSeed.name,
         slug: await ensureUniqueSlug(arenaSeed.name),
         description: arenaSeed.description,
+        country: 'Pakistan',
+        isApproved: true,
         isActive: true,
       });
       createdCounts.arenas += 1;
       console.log(`Created arena: ${arena.name}`);
+    }
+
+    if (!arena.isApproved || !arena.isActive) {
+      arena.isApproved = true;
+      arena.isActive = true;
+      await arena.save();
     }
 
     for (const branchSeed of arenaSeed.branches) {

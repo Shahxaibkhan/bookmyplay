@@ -18,7 +18,14 @@ export async function GET(
     }
 
     await connectDB();
-    const booking = await Booking.findById(params.id).lean();
+    const booking = (await Booking.findById(params.id).lean()) as {
+      _id: unknown;
+      ownerId: string;
+      arenaId: string;
+      branchId: string;
+      courtId: string;
+      [key: string]: unknown;
+    } | null;
     if (!booking) {
       return NextResponse.json({ error: 'Booking not found' }, { status: 404 });
     }
@@ -30,11 +37,15 @@ export async function GET(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const [arena, branch, court] = await Promise.all([
+    const [arena, branch, court] = (await Promise.all([
       Arena.findById(booking.arenaId).select('name').lean(),
       Branch.findById(booking.branchId).select('name whatsappNumber').lean(),
       Court.findById(booking.courtId).select('name').lean(),
-    ]);
+    ])) as [
+      { name?: string } | null,
+      { name?: string; whatsappNumber?: string } | null,
+      { name?: string } | null,
+    ];
 
     return NextResponse.json({
       booking: {

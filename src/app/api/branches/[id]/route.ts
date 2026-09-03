@@ -158,6 +158,8 @@ export async function PUT(
       return NextResponse.json({ error: 'Branch not found' }, { status: 404 });
     }
 
+    await Arena.findByIdAndUpdate(branch.arenaId, { isApproved: true });
+
     return NextResponse.json({
       message: 'Branch approved successfully',
       branch,

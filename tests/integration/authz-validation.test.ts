@@ -371,6 +371,7 @@ describe('API authorization and validation coverage', () => {
     const adminUpdate = await updateBookingStatus(
       buildJsonRequest(`/api/bookings/${state.bookingA}`, 'PATCH', {
         status: 'cancelled',
+        reason: 'Coverage test cancellation',
       }),
       { params: { id: state.bookingA } }
     );

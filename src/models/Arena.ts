@@ -45,6 +45,10 @@ const ArenaSchema = new Schema<IArena>(
       enum: ['Pakistan', 'Indonesia', 'Malaysia', 'Other'],
       default: 'Pakistan',
     },
+    isApproved: {
+      type: Boolean,
+      default: false,
+    },
     isActive: {
       type: Boolean,
       default: true,

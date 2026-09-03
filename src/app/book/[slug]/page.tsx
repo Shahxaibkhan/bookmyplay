@@ -321,7 +321,7 @@ export default function PublicBookingPage() {
       .join('\n');
 
     // Create confirmed bookings for each selected slot.
-    // If a slot is already booked (400), just skip it and continue
+    // If a slot is already booked, just skip it and continue
     // so the user is not shown an error toast.
     try {
       for (const slot of selectedSlots) {
@@ -340,7 +340,7 @@ export default function PublicBookingPage() {
             duration: selectedCourt.slotDuration || 60,
             price: slot.price,
             paymentReferenceId: bookingForm.paymentReferenceId || undefined,
-            // Mark as confirmed so slot is blocked until owner deletes/cancels
+            // The server confirms valid public bookings immediately.
             status: 'confirmed',
           }),
         });

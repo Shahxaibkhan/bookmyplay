@@ -41,6 +41,7 @@ export default function BookingsPage() {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | BookingStatus>('all');
+  const [search, setSearch] = useState('');
   const [toast, setToast] = useState<ToastState>(null);
 
   useEffect(() => {
@@ -65,34 +66,21 @@ export default function BookingsPage() {
     }
   }, [session]);
 
-  const handleStatusChange = async (bookingId: string, newStatus: BookingStatus) => {
-    try {
-      const res = await fetch(`/api/bookings/${bookingId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: newStatus }),
-      });
-
-      if (res.ok) {
-        setBookings(
-          bookings.map((b) => (b._id === bookingId ? { ...b, status: newStatus } : b)),
-        );
-        setToast({ message: `Booking ${newStatus} successfully`, type: 'success' });
-      } else {
-        setToast({ message: 'Failed to update booking', type: 'error' });
-      }
-    } catch (error) {
-      console.error('Error updating booking:', error);
-      setToast({ message: getErrorMessage(error), type: 'error' });
-    }
-  };
-
   const filteredBookings = useMemo(() => {
-    if (filter === 'all') {
-      return bookings;
-    }
-    return bookings.filter((b) => b.status === filter);
-  }, [bookings, filter]);
+    const normalizedSearch = search.trim().toLowerCase();
+    return bookings.filter((booking) => {
+      const matchesFilter = filter === 'all' || booking.status === filter;
+      const searchable = [
+        booking.referenceCode,
+        booking.customerName,
+        booking.customerPhone,
+        booking.arenaName,
+        booking.branchName,
+        booking.courtName,
+      ].join(' ').toLowerCase();
+      return matchesFilter && (!normalizedSearch || searchable.includes(normalizedSearch));
+    });
+  }, [bookings, filter, search]);
 
   const filterTabs: Array<{ key: 'all' | BookingStatus; label: string }> = [
     { key: 'all', label: `All (${bookings.length})` },
@@ -157,6 +145,18 @@ export default function BookingsPage() {
         </div>
 
         <div className="rounded-2xl border border-emerald-100 bg-white/90 shadow-sm">
+          <div className="border-b border-emerald-50 px-4 py-4">
+            <label className="block text-xs font-semibold uppercase tracking-wide text-slate-500" htmlFor="booking-search">
+              Find a booking
+            </label>
+            <input
+              id="booking-search"
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              placeholder="Reference, customer, phone, branch, or court"
+              className="mt-2 w-full rounded-xl border border-emerald-100 bg-white px-4 py-3 text-sm text-slate-900 outline-none ring-emerald-500 focus:ring-2"
+            />
+          </div>
           <nav className="flex flex-wrap gap-3 px-4 py-3" aria-label="Filters">
             {filterTabs.map((tab) => (
               <button
@@ -272,6 +272,12 @@ export default function BookingsPage() {
                 </div>
 
                 <div className="mt-3 flex flex-wrap items-center gap-3 text-xs">
+                  <Link
+                    href={`/owner/bookings/${booking._id}`}
+                    className="ml-auto rounded-xl bg-emerald-700 px-4 py-2 text-xs font-semibold text-white hover:bg-emerald-800"
+                  >
+                    Manage booking
+                  </Link>
                   {booking.paymentReferenceId && (
                     <span className="rounded-full bg-emerald-50 px-3 py-1 font-semibold text-emerald-800">
                       Payment ref: {booking.paymentReferenceId}
@@ -289,22 +295,6 @@ export default function BookingsPage() {
                     </a>
                   )}
 
-                  {booking.status === 'pending' && (
-                    <div className="ml-auto flex w-full gap-2 sm:w-auto">
-                      <button
-                        onClick={() => handleStatusChange(booking._id, 'confirmed')}
-                        className="flex-1 rounded-xl bg-gradient-to-r from-emerald-600 via-emerald-500 to-emerald-600 py-2 text-xs font-semibold text-white shadow hover:brightness-110"
-                      >
-                        Confirm
-                      </button>
-                      <button
-                        onClick={() => handleStatusChange(booking._id, 'cancelled')}
-                        className="flex-1 rounded-xl bg-rose-50 py-2 text-xs font-semibold text-rose-700 ring-1 ring-rose-200 hover:bg-rose-100"
-                      >
-                        Cancel
-                      </button>
-                    </div>
-                  )}
                 </div>
               </div>
             ))}

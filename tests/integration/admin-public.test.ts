@@ -94,6 +94,7 @@ describe('Admin dashboard data and public booking APIs', () => {
       slug: `public-qa-arena-${suffix}`,
       description: 'Arena exposed to public API',
       country: 'Pakistan',
+      isApproved: true,
       isActive: true,
     });
 
@@ -117,12 +118,14 @@ describe('Admin dashboard data and public booking APIs', () => {
       basePrice: 250,
       slotDuration: 60,
       schedule: [
-        {
-          day: 'Monday',
-          isOpen: true,
-          openingTime: '06:00',
-          closingTime: '23:00',
-        },
+        ...['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map(
+          (day) => ({
+            day,
+            isOpen: true,
+            openingTime: '06:00',
+            closingTime: '23:00',
+          })
+        ),
       ],
       dayPrices: [],
       timePrices: [],
@@ -310,6 +313,55 @@ describe('Admin dashboard data and public booking APIs', () => {
     const duplicateBookingResponse = await createPublicBooking(
       buildJsonRequest('/api/public/bookings', 'POST', nextSlotPayload)
     );
-    expect(duplicateBookingResponse.status).toBe(400);
+    expect(duplicateBookingResponse.status).toBe(409);
+
+    const createdBooking = (await createBookingResponse.json()) as {
+      booking: { price: number; endTime: string; status: string };
+    };
+    expect(createdBooking.booking.price).toBe(250);
+    expect(createdBooking.booking.endTime).toBe('10:00');
+    expect(createdBooking.booking.status).toBe('confirmed');
+
+    const forgedPriceResponse = await createPublicBooking(
+      buildJsonRequest('/api/public/bookings', 'POST', {
+        ...nextSlotPayload,
+        startTime: '10:00',
+        endTime: '00:01',
+        price: 1,
+        status: 'confirmed',
+      })
+    );
+    expect(forgedPriceResponse.status).toBe(201);
+    const forgedPriceBody = (await forgedPriceResponse.json()) as {
+      booking: { price: number; endTime: string; status: string };
+    };
+    expect(forgedPriceBody.booking.price).toBe(250);
+    expect(forgedPriceBody.booking.endTime).toBe('11:00');
+    expect(forgedPriceBody.booking.status).toBe('confirmed');
+
+    const maxPlayersResponse = await createPublicBooking(
+      buildJsonRequest('/api/public/bookings', 'POST', {
+        ...nextSlotPayload,
+        startTime: '11:00',
+        numberOfPlayers: 11,
+      })
+    );
+    expect(maxPlayersResponse.status).toBe(400);
+
+    const concurrentPayload = {
+      ...nextSlotPayload,
+      startTime: '12:00',
+      endTime: '13:00',
+    };
+    const concurrentResponses = await Promise.all([
+      createPublicBooking(
+        buildJsonRequest('/api/public/bookings', 'POST', concurrentPayload)
+      ),
+      createPublicBooking(
+        buildJsonRequest('/api/public/bookings', 'POST', concurrentPayload)
+      ),
+    ]);
+    expect(concurrentResponses.filter((response) => response.status === 201)).toHaveLength(1);
+    expect(concurrentResponses.filter((response) => response.status === 409)).toHaveLength(1);
   });
 });

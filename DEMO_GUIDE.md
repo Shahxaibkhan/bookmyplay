@@ -24,6 +24,7 @@ NEXTAUTH_SECRET=use-a-long-random-secret
 NEXTAUTH_URL=https://www.bookmyplay.pk
 ADMIN_EMAIL=your-admin-email
 ADMIN_PASSWORD=your-strong-admin-password
+DEMO_WHATSAPP_NUMBER=03434994409
 ```
 
 The seed is intended for a demo database. It creates or reuses the demo owner and realistic venues, branches, courts, and sample bookings. It is idempotent for matching arena, branch, court, and slot names.
@@ -39,7 +40,7 @@ Password: PlayHard123!
 
 Use a real admin account configured through `ADMIN_EMAIL` and `ADMIN_PASSWORD`. Do not use the default development password in a public deployment.
 
-The seeded phone numbers, bank details, payment references, and customer records are fictional demo data. Replace them before showing a real venue or accepting real payments.
+The demo owner and branch WhatsApp number defaults to `03434994409`. Override it with `DEMO_WHATSAPP_NUMBER` when using a different demo operator. The bank details, payment references, and customer records are fictional demo data. Replace them before accepting real payments.
 
 ## Demo Inventory
 

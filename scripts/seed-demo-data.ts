@@ -9,11 +9,13 @@ import Court from '../src/models/Court';
 import Booking from '../src/models/Booking';
 import { generateSlug, generateReferenceCode } from '../src/lib/utils';
 
+const demoWhatsappNumber = process.env.DEMO_WHATSAPP_NUMBER || '03434994409';
+
 const demoOwnerSeed = {
   name: 'Demo Sports Collective',
   email: 'demo-owner@bookmyplay.test',
   password: 'PlayHard123!',
-  phone: '0300-1234567',
+  phone: demoWhatsappNumber,
 };
 
 type CourtSeed = {
@@ -299,6 +301,10 @@ type CourtMapItem = {
 async function ensureDemoOwner() {
   let owner = await Owner.findOne({ email: demoOwnerSeed.email });
   if (owner) {
+    if (owner.phone !== demoOwnerSeed.phone) {
+      owner.phone = demoOwnerSeed.phone;
+      await owner.save();
+    }
     return owner;
   }
 
@@ -366,6 +372,7 @@ async function seed() {
       if (!branch) {
         branch = await Branch.create({
           ...branchSeed,
+          whatsappNumber: demoWhatsappNumber,
           arenaId: arena._id.toString(),
           images: [],
           isApproved: true,
@@ -373,6 +380,9 @@ async function seed() {
         });
         createdCounts.branches += 1;
         console.log(`  Added branch: ${branch.name}`);
+      } else if (branch.whatsappNumber !== demoWhatsappNumber) {
+        branch.whatsappNumber = demoWhatsappNumber;
+        await branch.save();
       }
 
       for (const courtSeed of branchSeed.courts) {
